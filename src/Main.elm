@@ -262,14 +262,11 @@ viewDesktop model =
 
 viewPhone : Model -> Html Msg
 viewPhone model =
-    layout
-        [ width fill
-        , inFront <| viewSocialLinks model
-        ]
-    <|
+    layout [ width fill ] <|
         column [ width fill ]
             [ viewTopbar model
             , viewMain model
+            , viewSocialLinks model
             ]
 
 
