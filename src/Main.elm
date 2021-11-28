@@ -5,16 +5,19 @@ import Browser.Events
 import Ease
 import Element exposing (..)
 import Element.Background as Background
+import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Html exposing (Html, iframe)
+import Html exposing (Html, img)
 import Html.Attributes
 import Html.Events
 import Icons
 import SmoothScroll
+import Svg
 import Svg.Attributes
-import Task exposing (Task)
+import Task
+import VirtualDom
 
 
 
@@ -562,16 +565,16 @@ projectsGridDesktop model =
                 ]
 
         dimension =
-            scaleFromWidth 0.136 model
+            projectSquareDimension model
     in
     grid
         [ gridRow
-            [ squareDailyUI dimension model
-            , squareRoco dimension model
+            [ squareRoco dimension model
             , squareHoneysuckle dimension model
+            , squareLuna dimension model
             ]
         , gridRow
-            [ squareLuna dimension model
+            [ squareDailyUI dimension model
             , squareContraryGarden dimension model
             , squareMisc dimension model
             ]
@@ -596,16 +599,16 @@ projectsGridPhone model =
                 ]
 
         dimension =
-            scaleFromWidth 0.32 model
+            projectSquareDimension model
     in
     grid
         [ gridRow
-            [ squareDailyUI dimension model
-            , squareRoco dimension model
+            [ squareRoco dimension model
+            , squareHoneysuckle dimension model
             ]
         , gridRow
-            [ squareHoneysuckle dimension model
-            , squareLuna dimension model
+            [ squareLuna dimension model
+            , squareDailyUI dimension model
             ]
         , gridRow
             [ squareContraryGarden dimension model
@@ -617,7 +620,8 @@ projectsGridPhone model =
 squareDailyUI : Int -> Model -> Element Msg
 squareDailyUI =
     projectSquare
-        "Daily UI"
+        Icons.dailyUI
+        "https://www.behance.net/mariayevickery"
         "Daily UI Exercises"
         DailyUI
 
@@ -625,7 +629,8 @@ squareDailyUI =
 squareRoco : Int -> Model -> Element Msg
 squareRoco =
     projectSquare
-        "roco"
+        Icons.roco
+        "https://www.behance.net/gallery/131255429/Roco"
         "Concept, branding, mobile UI/UX"
         Roco
 
@@ -633,7 +638,8 @@ squareRoco =
 squareHoneysuckle : Int -> Model -> Element Msg
 squareHoneysuckle =
     projectSquare
-        "HS"
+        Icons.honeysuckle
+        "https://www.behance.net/gallery/131255777/Honeysuckle-Chopsaw"
         "Concept, branding, web and mobile UI/UX"
         Honeysuckle
 
@@ -641,7 +647,8 @@ squareHoneysuckle =
 squareLuna : Int -> Model -> Element Msg
 squareLuna =
     projectSquare
-        "Luna"
+        Icons.luna
+        "https://www.behance.net/gallery/131256029/Luna"
         "Concept, branding, web and mobile UI/UX"
         Luna
 
@@ -649,7 +656,8 @@ squareLuna =
 squareContraryGarden : Int -> Model -> Element Msg
 squareContraryGarden =
     projectSquare
-        "CG"
+        Icons.contraryGarden
+        "https://society6.com/mariaye"
         "Concept, branding, web and mobile UI/UX"
         ContraryGarden
 
@@ -657,13 +665,21 @@ squareContraryGarden =
 squareMisc : Int -> Model -> Element Msg
 squareMisc =
     projectSquare
-        "Misc"
+        Icons.misc
+        ""
         "Miscellaneous designs"
         Misc
 
 
-projectSquare : String -> String -> Project -> Int -> Model -> Element Msg
-projectSquare label description project dimension model =
+projectSquare :
+    (List (VirtualDom.Attribute Msg) -> Svg.Svg Msg)
+    -> String
+    -> String
+    -> Project
+    -> Int
+    -> Model
+    -> Element Msg
+projectSquare icon url description project dimension model =
     let
         isHovered =
             case model.projectState of
@@ -694,18 +710,35 @@ projectSquare label description project dimension model =
 
             else
                 none
+
+        shadowY =
+            toFloat <|
+                scaleFromWidth 0.0028 model
+
+        projectIcon =
+            html <|
+                icon
+                    [ Svg.Attributes.height <|
+                        String.fromInt dimension
+                    ]
     in
-    Input.button
+    newTabLink
         [ width <| px dimension
         , height <| px dimension
         , Background.color palette.lightBrownTranslucent
+        , Border.shadow
+            { offset = ( 0, shadowY )
+            , size = 0
+            , blur = shadowY
+            , color = palette.blackTranslucent
+            }
         , Events.onMouseEnter <| ProjectHover project
         , Events.onMouseLeave ProjectLeave
         , focused []
         , inFront overlay
         ]
-        { onPress = Just <| OpenProject project
-        , label = text label
+        { url = url
+        , label = projectIcon
         }
 
 
@@ -713,12 +746,66 @@ viewAbout : Model -> Element Msg
 viewAbout model =
     column
         [ width fill
-        , height <| px 1000
         , paddingEach
             { edges | top = scaleFromWidth 0.1 model }
         ]
         [ sectionTitle "ABOUT" model
+        , about model
         ]
+
+
+about : Model -> Element Msg
+about model =
+    case model.device of
+        Desktop ->
+            row
+                [ width <| px <| sectionWidth model
+                , centerX
+                , paddingEach
+                    { edges | top = paddingSize.xl model }
+                , spacing <| paddingSize.lg model
+                ]
+                [ el [ width <| fillPortion 1 ] <|
+                    image [ width fill ]
+                        { src = "%PUBLIC_URL%/headshot.png"
+                        , description = "Photo of Mariaye Vickery"
+                        }
+                , el
+                    [ width <| fillPortion 2
+                    , alignTop
+                    ]
+                  <|
+                    paragraph
+                        [ spacing <| fontSize.md model
+                        , Font.alignLeft
+                        , Font.size <| fontSize.md model
+                        , Font.family sansSerif
+                        ]
+                        [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
+                ]
+
+        Phone ->
+            column
+                [ width <| px <| sectionWidth model
+                , centerX
+                , paddingEach
+                    { edges | top = paddingSize.xl model }
+                , spacing <| paddingSize.lg model
+                ]
+                [ el [ width fill ] <|
+                    image [ width fill ]
+                        { src = "%PUBLIC_URL%/headshot.png"
+                        , description = "Photo of Mariaye Vickery"
+                        }
+                , el [ alignTop ] <|
+                    paragraph
+                        [ spacing <| fontSize.md model
+                        , Font.alignLeft
+                        , Font.size <| fontSize.md model
+                        , Font.family sansSerif
+                        ]
+                        [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
+                ]
 
 
 viewContact : Model -> Element Msg
@@ -775,6 +862,33 @@ scale factor number =
         |> round
 
 
+projectSquareDimension : Model -> Int
+projectSquareDimension model =
+    case model.device of
+        Desktop ->
+            scaleFromWidth 0.136 model
+
+        Phone ->
+            scaleFromWidth 0.32 model
+
+
+sectionWidth : Model -> Int
+sectionWidth model =
+    let
+        squareWidth =
+            projectSquareDimension model
+
+        padding =
+            paddingSize.lg model
+    in
+    case model.device of
+        Desktop ->
+            3 * squareWidth + 2 * padding
+
+        Phone ->
+            2 * squareWidth + padding
+
+
 toSvgColor : Color -> String
 toSvgColor color =
     let
@@ -805,6 +919,7 @@ palette =
     , darkBrown = rgb255 44 42 39
     , darkBrownTranslucent = rgba255 44 42 39 0.9
     , darkGrey = rgb255 44 42 39
+    , blackTranslucent = rgba255 0 0 0 0.25
     }
 
 
