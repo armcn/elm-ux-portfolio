@@ -866,6 +866,7 @@ email : Model -> Element Msg
 email =
     contactUrl
         Icons.email
+        ""
         "mariaye.vickery@gmail.com"
         False
 
@@ -874,6 +875,7 @@ linkedin : Model -> Element Msg
 linkedin =
     contactUrl
         Icons.linkedin
+        "http://linkedin.com/in/mariayevickery/"
         "linkedin.com/in/mariayevickery/"
         True
 
@@ -882,6 +884,7 @@ instagram : Model -> Element Msg
 instagram =
     contactUrl
         Icons.instagram
+        "http://instagram.com/marsviux"
         "instagram.com/marsviux"
         True
 
@@ -890,6 +893,7 @@ twitter : Model -> Element Msg
 twitter =
     contactUrl
         Icons.twitter
+        "http://twitter.com/marsviux"
         "twitter.com/marsviux"
         True
 
@@ -898,6 +902,7 @@ behance : Model -> Element Msg
 behance =
     contactUrl
         Icons.behance
+        "http://behance.net/mariayevickery"
         "behance.net/mariayevickery"
         True
 
@@ -906,6 +911,7 @@ dribbble : Model -> Element Msg
 dribbble =
     contactUrl
         Icons.dribbble
+        "http://dribbble.com/marsvic"
         "dribbble.com/marsvic"
         True
 
@@ -913,10 +919,11 @@ dribbble =
 contactUrl :
     (List (VirtualDom.Attribute Msg) -> Svg.Svg Msg)
     -> String
+    -> String
     -> Bool
     -> Model
     -> Element Msg
-contactUrl icon label isLink model =
+contactUrl icon url label isLink model =
     let
         height =
             String.fromInt <|
@@ -928,7 +935,7 @@ contactUrl icon label isLink model =
                     icon
                         [ Svg.Attributes.height height ]
 
-        url =
+        link =
             if isLink then
                 newTabLink []
                     { label =
@@ -938,7 +945,7 @@ contactUrl icon label isLink model =
                             ]
                         <|
                             text label
-                    , url = label
+                    , url = url
                     }
 
             else
@@ -951,7 +958,7 @@ contactUrl icon label isLink model =
     in
     row [ spacing <| padSm model ]
         [ socialIcon
-        , url
+        , link
         ]
 
 
