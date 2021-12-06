@@ -9,9 +9,7 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Html exposing (Html, img)
-import Html.Attributes
-import Html.Events
+import Html exposing (Html)
 import Icons
 import SmoothScroll
 import Svg
@@ -30,6 +28,11 @@ type alias ScreenSize =
     }
 
 
+type Device
+    = Desktop
+    | Phone
+
+
 type Tab
     = Portfolio
     | About
@@ -37,23 +40,12 @@ type Tab
 
 
 type Project
-    = DailyUI
-    | Roco
+    = Roco
     | Honeysuckle
     | Luna
+    | DailyUI
     | ContraryGarden
     | Misc
-
-
-type ProjectState
-    = Hovered Project
-    | Open Project
-    | Closed
-
-
-type Device
-    = Desktop
-    | Phone
 
 
 type alias Model =
@@ -61,7 +53,7 @@ type alias Model =
     , device : Device
     , activeTab : Tab
     , hoveredTab : Maybe Tab
-    , projectState : ProjectState
+    , hoveredProject : Maybe Project
     }
 
 
@@ -77,7 +69,7 @@ init flags =
       , device = classifyDevice flags.width flags.height
       , activeTab = Portfolio
       , hoveredTab = Nothing
-      , projectState = Closed
+      , hoveredProject = Nothing
       }
     , Cmd.none
     )
@@ -88,24 +80,19 @@ init flags =
 
 
 type Msg
-    = NoOp
-    | SetScreenSize Int Int
+    = SetScreenSize Int Int
     | SetDeviceClass Int Int
     | NavTo Tab
     | NavHover Tab
     | NavLeave
     | ProjectHover Project
     | ProjectLeave
-    | OpenProject Project
-    | GoHome
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
-
         SetScreenSize width height ->
             ( setScreenSize width height model, Cmd.none )
 
@@ -127,11 +114,8 @@ update msg model =
         ProjectLeave ->
             ( projectLeave model, Cmd.none )
 
-        OpenProject project ->
-            ( openProject project model, Cmd.none )
-
-        GoHome ->
-            ( goHome model, Cmd.none )
+        NoOp ->
+            ( model, Cmd.none )
 
 
 setScreenSize : Int -> Int -> Model -> Model
@@ -144,18 +128,38 @@ setDeviceClass width height model =
     { model | device = classifyDevice width height }
 
 
+navTo : Tab -> Model -> Model
+navTo tab model =
+    { model | activeTab = tab }
+
+
+navHover : Tab -> Model -> Model
+navHover tab model =
+    { model | hoveredTab = Just tab }
+
+
+navLeave : Model -> Model
+navLeave model =
+    { model | hoveredTab = Nothing }
+
+
+projectHover : Project -> Model -> Model
+projectHover project model =
+    { model | hoveredProject = Just project }
+
+
+projectLeave : Model -> Model
+projectLeave model =
+    { model | hoveredProject = Nothing }
+
+
 classifyDevice : Int -> Int -> Device
-classifyDevice width height =
+classifyDevice width _ =
     if width < 700 then
         Phone
 
     else
         Desktop
-
-
-navTo : Tab -> Model -> Model
-navTo tab model =
-    { model | activeTab = tab }
 
 
 scrollToSection : Tab -> Model -> Cmd Msg
@@ -172,7 +176,7 @@ scrollToSection tab model =
         Contact ->
             scrollTo <|
                 toFloat <|
-                    scaleFromWidth 0.8 model
+                    scaleFromWidth 0.85 model
 
 
 scrollTo : Float -> Cmd Msg
@@ -182,39 +186,9 @@ scrollTo y =
             SmoothScroll.scrollTo <|
                 SmoothScroll.createConfig
                     Ease.outCubic
-                    300
+                    400
     in
     Task.perform (always NoOp) (task y)
-
-
-navHover : Tab -> Model -> Model
-navHover tab model =
-    { model | hoveredTab = Just tab }
-
-
-navLeave : Model -> Model
-navLeave model =
-    { model | hoveredTab = Nothing }
-
-
-projectHover : Project -> Model -> Model
-projectHover project model =
-    { model | projectState = Hovered project }
-
-
-projectLeave : Model -> Model
-projectLeave model =
-    { model | projectState = Closed }
-
-
-openProject : Project -> Model -> Model
-openProject project model =
-    { model | projectState = Open project }
-
-
-goHome : Model -> Model
-goHome model =
-    { model | projectState = Closed }
 
 
 
@@ -249,13 +223,12 @@ viewDesktop model =
         [ width fill
         , inFront <| navBar model
         , inFront <| viewSidebar model
-        , inFront <| viewProject model
         ]
     <|
         row
             [ width fill
             , height fill
-            , Background.color palette.cream
+            , Background.color cream
             ]
             [ viewMain model ]
 
@@ -266,7 +239,6 @@ viewPhone model =
         column [ width fill ]
             [ viewTopbar model
             , viewMain model
-            , viewSocialLinks model
             ]
 
 
@@ -274,9 +246,9 @@ viewTopbar : Model -> Element Msg
 viewTopbar model =
     row
         [ width fill
-        , padding <| paddingSize.lg model
-        , spacing <| paddingSize.md model
-        , Background.color palette.darkBrown
+        , padding <| padSm model
+        , spacing <| padSm model
+        , Background.color darkBrown
         ]
         [ personName model
         , personLogo model
@@ -288,31 +260,11 @@ viewSocialLinks : Model -> Element Msg
 viewSocialLinks model =
     row
         [ width fill
-        , padding <| paddingSize.lg model
+        , padding <| padLg model
         , alignBottom
-        , Background.color palette.darkBrown
+        , Background.color darkBrown
         ]
         [ socialLinks model ]
-
-
-viewProject : Model -> Element Msg
-viewProject model =
-    case model.projectState of
-        Open project ->
-            column
-                [ width fill
-                , height fill
-                , padding <| paddingSize.xl model
-                , Background.color palette.cream
-                ]
-                [ Input.button []
-                    { onPress = Just GoHome
-                    , label = text "Back"
-                    }
-                ]
-
-        _ ->
-            none
 
 
 viewSidebar : Model -> Element Msg
@@ -321,9 +273,9 @@ viewSidebar model =
         [ width <| px <| scaleFromWidth 0.33 model
         , height fill
         , paddingEach
-            { edges | bottom = paddingSize.xxl model }
-        , spacing <| paddingSize.lg model
-        , Background.color palette.darkBrown
+            { edges | top = padXxl model }
+        , spacing <| padSm model
+        , Background.color darkBrown
         ]
         [ personName model
         , personLogo model
@@ -337,8 +289,8 @@ personName model =
     el
         [ centerX
         , centerY
-        , Font.size <| fontSize.lg model
-        , Font.color palette.white
+        , Font.size <| fontLg model
+        , Font.color white
         , Font.family serif
         ]
     <|
@@ -349,7 +301,7 @@ personLogo : Model -> Element Msg
 personLogo model =
     let
         color =
-            toSvgColor palette.brown
+            toSvgColor brown
 
         height =
             String.fromInt <|
@@ -367,15 +319,15 @@ personTitle : Model -> Element Msg
 personTitle model =
     let
         size =
-            fontSize.sm model
+            fontSm model
 
         spacing =
-            toFloat size * 0.15
+            toFloat size * 0.23
     in
     el
         [ centerX
         , centerY
-        , Font.color palette.white
+        , Font.color white
         , Font.size size
         , Font.letterSpacing spacing
         , Font.family sansSerif
@@ -405,7 +357,9 @@ socialLinks model =
     in
     row
         [ centerX
-        , spacing <| paddingSize.lg model
+        , centerY
+        , paddingEach { edges | top = padXl model }
+        , spacing <| padSm model
         ]
         [ socialLink Icons.dribbble "https://dribbble.com/marsvic"
         , socialLink Icons.behance "https://www.behance.net/mariayevickery"
@@ -420,21 +374,20 @@ navBar model =
     let
         padding =
             { edges
-                | top = paddingSize.xl model
-                , bottom = paddingSize.lg model
+                | top = padXl model
+                , bottom = padLg model
                 , left = scaleFromWidth 0.33 model
             }
     in
     el
         [ width fill
         , paddingEach padding
-        , Background.color palette.creamTranslucent
+        , Background.color creamTranslucent
         ]
     <|
         row
             [ centerX
-            , spacing <| paddingSize.xl model
-            , Font.size <| fontSize.md model
+            , spacing <| padXl model
             ]
             [ buttonNav "PORTFOLIO" Portfolio model
             , buttonNav "ABOUT" About model
@@ -458,13 +411,13 @@ buttonNav label tab model =
 
         fontColor =
             if isActiveTab || isHoveredTab then
-                palette.lightBrown
+                lightBrown
 
             else
-                palette.darkGrey
+                darkGrey
 
         size =
-            fontSize.md model
+            fontMd model
 
         spacing =
             toFloat size * 0.15
@@ -502,7 +455,7 @@ viewMain model =
         [ width fill
         , alignTop
         , paddingEach pad
-        , Background.color palette.cream
+        , Background.color cream
         ]
         [ viewPortfolio model
         , viewAbout model
@@ -525,7 +478,7 @@ viewPortfolioDesktop model =
     column
         [ width fill
         , paddingEach
-            { edges | top = scaleFromWidth 0.1 model }
+            { edges | top = scaleFromWidth 0.125 model }
         ]
         [ sectionTitle "PROJECTS" model
         , projectsGridDesktop model
@@ -537,7 +490,7 @@ viewPortfolioPhone model =
     column
         [ width fill
         , paddingEach
-            { edges | top = scaleFromWidth 0.2 model }
+            { edges | top = padXl model }
         ]
         [ sectionTitle "PROJECTS" model
         , projectsGridPhone model
@@ -548,7 +501,7 @@ projectsGridDesktop : Model -> Element Msg
 projectsGridDesktop model =
     let
         gridSpacing =
-            paddingSize.lg model
+            padLg model
 
         gridRow =
             row [ spacing gridSpacing ]
@@ -557,7 +510,7 @@ projectsGridDesktop model =
             column
                 [ centerX
                 , paddingEach
-                    { edges | top = paddingSize.xl model }
+                    { edges | top = padXl model }
                 , spacing gridSpacing
                 ]
 
@@ -573,7 +526,7 @@ projectsGridDesktop model =
         , gridRow
             [ squareDailyUI dimension model
             , squareContraryGarden dimension model
-            , squareMisc dimension model
+            , blankProjectSquare Misc dimension model
             ]
         ]
 
@@ -582,7 +535,7 @@ projectsGridPhone : Model -> Element Msg
 projectsGridPhone model =
     let
         gridSpacing =
-            paddingSize.lg model
+            padMd model
 
         gridRow =
             row [ spacing gridSpacing ]
@@ -591,7 +544,7 @@ projectsGridPhone model =
             column
                 [ centerX
                 , paddingEach
-                    { edges | top = paddingSize.xl model }
+                    { edges | top = padXl model }
                 , spacing gridSpacing
                 ]
 
@@ -609,7 +562,7 @@ projectsGridPhone model =
             ]
         , gridRow
             [ squareContraryGarden dimension model
-            , squareMisc dimension model
+            , blankProjectSquare Misc dimension model
             ]
         ]
 
@@ -659,15 +612,6 @@ squareContraryGarden =
         ContraryGarden
 
 
-squareMisc : Int -> Model -> Element Msg
-squareMisc =
-    projectSquare
-        Icons.misc
-        ""
-        "Miscellaneous designs"
-        Misc
-
-
 projectSquare :
     (List (VirtualDom.Attribute Msg) -> Svg.Svg Msg)
     -> String
@@ -679,11 +623,11 @@ projectSquare :
 projectSquare icon url description project dimension model =
     let
         isHovered =
-            case model.projectState of
-                Hovered hoveredProject ->
+            case model.hoveredProject of
+                Just hoveredProject ->
                     hoveredProject == project
 
-                _ ->
+                Nothing ->
                     False
 
         overlay =
@@ -692,15 +636,15 @@ projectSquare icon url description project dimension model =
                     [ width <| px dimension
                     , height <| px dimension
                     , Background.color
-                        palette.darkBrownTranslucent
+                        darkBrownTranslucent
                     ]
                 <|
                     paragraph
                         [ centerX
                         , centerY
                         , padding <| scaleFromWidth 0.005 model
-                        , Font.size <| fontSize.sm model
-                        , Font.color palette.white
+                        , Font.size <| fontSm model
+                        , Font.color white
                         , Font.family sansSerif
                         ]
                         [ text description ]
@@ -722,16 +666,16 @@ projectSquare icon url description project dimension model =
     newTabLink
         [ width <| px dimension
         , height <| px dimension
-        , Background.color palette.lightBrownTranslucent
+        , Background.color lightBrownTranslucent
         , Border.shadow
             { offset = ( 0, shadowY )
             , size = 0
             , blur = shadowY
-            , color = palette.blackTranslucent
+            , color = blackTranslucent
             }
         , Events.onMouseEnter <| ProjectHover project
         , Events.onMouseLeave ProjectLeave
-        , focused []
+        , Events.onClick ProjectLeave
         , inFront overlay
         ]
         { url = url
@@ -739,15 +683,71 @@ projectSquare icon url description project dimension model =
         }
 
 
+blankProjectSquare : Project -> Int -> Model -> Element Msg
+blankProjectSquare project dimension model =
+    let
+        isHovered =
+            case model.hoveredProject of
+                Just hoveredProject ->
+                    hoveredProject == project
+
+                Nothing ->
+                    False
+
+        overlay =
+            if isHovered then
+                el
+                    [ width <| px dimension
+                    , height <| px dimension
+                    , Background.color
+                        darkBrownTranslucent
+                    ]
+                <|
+                    paragraph
+                        [ centerX
+                        , centerY
+                        , padding <| scaleFromWidth 0.005 model
+                        , Font.size <| fontSm model
+                        , Font.color white
+                        , Font.family sansSerif
+                        ]
+                        []
+
+            else
+                none
+
+        shadowY =
+            toFloat <|
+                scaleFromWidth 0.0028 model
+    in
+    el
+        [ width <| px dimension
+        , height <| px dimension
+        , Background.color lightBrownTranslucent
+        , Border.shadow
+            { offset = ( 0, shadowY )
+            , size = 0
+            , blur = shadowY
+            , color = blackTranslucent
+            }
+        , Events.onMouseEnter <| ProjectHover project
+        , Events.onMouseLeave ProjectLeave
+        , Events.onClick ProjectLeave
+        , inFront overlay
+        ]
+        none
+
+
 viewAbout : Model -> Element Msg
 viewAbout model =
     column
         [ width fill
         , paddingEach
-            { edges | top = scaleFromWidth 0.1 model }
+            { edges | top = padXxl model }
         ]
         [ sectionTitle "ABOUT" model
         , about model
+        , resumeButton model
         ]
 
 
@@ -759,8 +759,8 @@ about model =
                 [ width <| px <| sectionWidth model
                 , centerX
                 , paddingEach
-                    { edges | top = paddingSize.xl model }
-                , spacing <| paddingSize.lg model
+                    { edges | top = padXl model }
+                , spacing <| padLg model
                 ]
                 [ el [ width <| fillPortion 1 ] <|
                     image [ width fill ]
@@ -773,9 +773,9 @@ about model =
                     ]
                   <|
                     paragraph
-                        [ spacing <| fontSize.md model
+                        [ spacing <| fontMd model
                         , Font.alignLeft
-                        , Font.size <| fontSize.md model
+                        , Font.size <| fontMd model
                         , Font.family sansSerif
                         ]
                         [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
@@ -786,8 +786,8 @@ about model =
                 [ width <| px <| sectionWidth model
                 , centerX
                 , paddingEach
-                    { edges | top = paddingSize.xl model }
-                , spacing <| paddingSize.lg model
+                    { edges | top = padXl model }
+                , spacing <| padLg model
                 ]
                 [ el [ width fill ] <|
                     image [ width fill ]
@@ -796,24 +796,162 @@ about model =
                         }
                 , el [ alignTop ] <|
                     paragraph
-                        [ spacing <| fontSize.md model
+                        [ spacing <| fontMd model
                         , Font.alignLeft
-                        , Font.size <| fontSize.md model
+                        , Font.size <| fontMd model
                         , Font.family sansSerif
                         ]
                         [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
                 ]
 
 
+resumeButton : Model -> Element Msg
+resumeButton model =
+    let
+        label =
+            el
+                [ Font.alignLeft
+                , Font.size <| fontMd model
+                , Font.family sansSerif
+                , Font.color lightBrown
+                ]
+            <|
+                text "DOWNLOAD RESUME"
+    in
+    el
+        [ centerX
+        , paddingEach { edges | top = padLg model }
+        ]
+    <|
+        downloadAs []
+            { label = label
+            , filename = "Mariaye Vickery's Resume"
+            , url = "%PUBLIC_URL%/resume.pdf"
+            }
+
+
 viewContact : Model -> Element Msg
 viewContact model =
     column
         [ width fill
-        , height <| px 1000
         , paddingEach
-            { edges | top = scaleFromWidth 0.1 model }
+            { edges | top = padXxl model }
         ]
         [ sectionTitle "CONTACT" model
+        , contact model
+        ]
+
+
+contact : Model -> Element Msg
+contact model =
+    column
+        [ centerX
+        , spacing <| padLg model
+        , paddingEach
+            { edges
+                | top = padXl model
+                , bottom = scaleFromWidth 0.11 model
+            }
+        ]
+        [ email model
+        , linkedin model
+        , instagram model
+        , twitter model
+        , behance model
+        , dribbble model
+        ]
+
+
+email : Model -> Element Msg
+email =
+    contactUrl
+        Icons.email
+        "mariaye.vickery@gmail.com"
+        False
+
+
+linkedin : Model -> Element Msg
+linkedin =
+    contactUrl
+        Icons.linkedin
+        "linkedin.com/in/mariayevickery/"
+        True
+
+
+instagram : Model -> Element Msg
+instagram =
+    contactUrl
+        Icons.instagram
+        "instagram.com/marsviux"
+        True
+
+
+twitter : Model -> Element Msg
+twitter =
+    contactUrl
+        Icons.twitter
+        "twitter.com/marsviux"
+        True
+
+
+behance : Model -> Element Msg
+behance =
+    contactUrl
+        Icons.behance
+        "behance.net/mariayevickery"
+        True
+
+
+dribbble : Model -> Element Msg
+dribbble =
+    contactUrl
+        Icons.dribbble
+        "dribbble.com/marsvic"
+        True
+
+
+contactUrl :
+    (List (VirtualDom.Attribute Msg) -> Svg.Svg Msg)
+    -> String
+    -> Bool
+    -> Model
+    -> Element Msg
+contactUrl icon label isLink model =
+    let
+        height =
+            String.fromInt <|
+                socialIconHeight model
+
+        socialIcon =
+            el [] <|
+                html <|
+                    icon
+                        [ Svg.Attributes.height height ]
+
+        url =
+            if isLink then
+                newTabLink []
+                    { label =
+                        el
+                            [ Font.size <| fontMd model
+                            , Font.family <| sansSerif
+                            ]
+                        <|
+                            text label
+                    , url = label
+                    }
+
+            else
+                el
+                    [ Font.size <| fontMd model
+                    , Font.family <| sansSerif
+                    ]
+                <|
+                    text label
+    in
+    row [ spacing <| padSm model ]
+        [ socialIcon
+        , url
         ]
 
 
@@ -821,7 +959,7 @@ sectionTitle : String -> Model -> Element Msg
 sectionTitle title model =
     let
         size =
-            fontSize.xxl model
+            fontXxl model
 
         spacing =
             toFloat size * 0.15
@@ -876,7 +1014,7 @@ sectionWidth model =
             projectSquareDimension model
 
         padding =
-            paddingSize.lg model
+            padLg model
     in
     case model.device of
         Desktop ->
@@ -884,6 +1022,60 @@ sectionWidth model =
 
         Phone ->
             2 * squareWidth + padding
+
+
+
+---- COLOR ----
+
+
+white : Color
+white =
+    rgb255 255 255 255
+
+
+cream : Color
+cream =
+    rgb255 243 242 237
+
+
+creamTranslucent : Color
+creamTranslucent =
+    rgba255 243 242 237 0.9
+
+
+lightBrown : Color
+lightBrown =
+    rgb255 173 118 75
+
+
+lightBrownTranslucent : Color
+lightBrownTranslucent =
+    rgba255 173 118 75 0.52
+
+
+brown : Color
+brown =
+    rgb255 173 118 75
+
+
+darkBrown : Color
+darkBrown =
+    rgb255 44 42 39
+
+
+darkBrownTranslucent : Color
+darkBrownTranslucent =
+    rgba255 44 42 39 0.9
+
+
+darkGrey : Color
+darkGrey =
+    rgb255 44 42 39
+
+
+blackTranslucent : Color
+blackTranslucent =
+    rgba255 0 0 0 0.25
 
 
 toSvgColor : Color -> String
@@ -906,31 +1098,37 @@ toSvgColor color =
         ]
 
 
-palette =
-    { white = rgb255 255 255 255
-    , cream = rgb255 243 242 237
-    , creamTranslucent = rgba255 243 242 237 0.9
-    , lightBrown = rgb255 173 118 75
-    , lightBrownTranslucent = rgba255 173 118 75 0.52
-    , brown = rgb255 173 118 75
-    , darkBrown = rgb255 44 42 39
-    , darkBrownTranslucent = rgba255 44 42 39 0.9
-    , darkGrey = rgb255 44 42 39
-    , blackTranslucent = rgba255 0 0 0 0.25
-    }
+
+---- PADDING ----
 
 
-paddingSize =
-    { xxl = scale 4 << paddingSizeBase
-    , xl = scale 3 << paddingSizeBase
-    , lg = paddingSizeBase
-    , md = scale 0.7 << paddingSizeBase
-    , sm = scale 0.5 << paddingSizeBase
-    }
+edges : { left : Int, right : Int, top : Int, bottom : Int }
+edges =
+    { left = 0, right = 0, top = 0, bottom = 0 }
 
 
-paddingSizeBase : Model -> Int
-paddingSizeBase model =
+padXxl : Model -> Int
+padXxl =
+    scalePad << padXl
+
+
+padXl : Model -> Int
+padXl =
+    scalePad << padLg
+
+
+padLg : Model -> Int
+padLg =
+    scalePad << padMd
+
+
+padMd : Model -> Int
+padMd =
+    scalePad << padSm
+
+
+padSm : Model -> Int
+padSm model =
     case model.device of
         Desktop ->
             scaleFromWidth 0.014 model
@@ -939,27 +1137,48 @@ paddingSizeBase model =
             scaleFromWidth 0.05 model
 
 
-edges : { left : Int, right : Int, top : Int, bottom : Int }
-edges =
-    { left = 0, right = 0, top = 0, bottom = 0 }
+scalePad : Int -> Int
+scalePad =
+    scale 1.5
 
 
-fontSize =
-    { xxl = scale 2 << fontSizeBase
-    , lg = fontSizeBase
-    , md = scale 0.7 << fontSizeBase
-    , sm = scale 0.5 << fontSizeBase
-    }
+
+---- FONT ----
 
 
-fontSizeBase : Model -> Int
-fontSizeBase model =
+fontXxl : Model -> Int
+fontXxl =
+    scaleFont << fontXl
+
+
+fontXl : Model -> Int
+fontXl =
+    scaleFont << fontLg
+
+
+fontLg : Model -> Int
+fontLg =
+    scaleFont << fontMd
+
+
+fontMd : Model -> Int
+fontMd =
+    scaleFont << fontSm
+
+
+fontSm : Model -> Int
+fontSm model =
     case model.device of
         Desktop ->
-            scaleFromWidth 0.017 model
+            scaleFromWidth 0.01 model
 
         Phone ->
-            scaleFromWidth 0.04 model
+            scaleFromWidth 0.025 model
+
+
+scaleFont : Int -> Int
+scaleFont =
+    scale 1.33
 
 
 serif : List Font.Font
@@ -968,7 +1187,7 @@ serif =
         { name = "Cormorant SC"
         , url = "https://fonts.googleapis.com/css?family=Cormorant SC"
         }
-    , Font.sansSerif
+    , Font.serif
     ]
 
 

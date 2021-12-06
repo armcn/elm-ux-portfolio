@@ -1,7 +1,7 @@
 {
   "main.css": "/elm-ux-portfolio/static/css/main.0af5c45f.chunk.css",
-  "main.js": "/elm-ux-portfolio/static/js/main.3d2d9384.chunk.js",
-  "main.js.map": "/elm-ux-portfolio/static/js/main.3d2d9384.chunk.js.map",
+  "main.js": "/elm-ux-portfolio/static/js/main.6ccde0d5.chunk.js",
+  "main.js.map": "/elm-ux-portfolio/static/js/main.6ccde0d5.chunk.js.map",
   "runtime~main.js": "/elm-ux-portfolio/static/js/runtime~main.fdb9ace0.js",
   "runtime~main.js.map": "/elm-ux-portfolio/static/js/runtime~main.fdb9ace0.js.map",
   "vendors~main.js": "/elm-ux-portfolio/static/js/vendors~main.0b49ec49.chunk.js",
@@ -12,5 +12,5 @@
   "index.html": "/elm-ux-portfolio/index.html",
   "logo.svg": "/elm-ux-portfolio/logo.svg",
   "manifest.json": "/elm-ux-portfolio/manifest.json",
-  "precache-manifest.ceeb52d6c4ee5317f3bf3e6fa769a9db.js": "/elm-ux-portfolio/precache-manifest.ceeb52d6c4ee5317f3bf3e6fa769a9db.js"
+  "precache-manifest.1e29b188606f66e6b6bed49258ad0272.js": "/elm-ux-portfolio/precache-manifest.1e29b188606f66e6b6bed49258ad0272.js"
 }

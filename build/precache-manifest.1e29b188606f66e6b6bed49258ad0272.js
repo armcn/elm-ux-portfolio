@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/elm-ux-portfolio/headshot.png"
   },
   {
-    "revision": "5460e7e461fd058342c83a9d9b4bb417",
+    "revision": "4f438f2c0a75d1f9a6a437fb334c72e7",
     "url": "/elm-ux-portfolio/index.html"
   },
   {
@@ -20,12 +20,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/elm-ux-portfolio/manifest.json"
   },
   {
-    "revision": "3d2d9384b33b62b1a89d",
+    "revision": "6ccde0d56f586b79a2c9",
     "url": "/elm-ux-portfolio/static/css/main.0af5c45f.chunk.css"
   },
   {
-    "revision": "3d2d9384b33b62b1a89d",
-    "url": "/elm-ux-portfolio/static/js/main.3d2d9384.chunk.js"
+    "revision": "6ccde0d56f586b79a2c9",
+    "url": "/elm-ux-portfolio/static/js/main.6ccde0d5.chunk.js"
   },
   {
     "revision": "fdb9ace01c0a27ff2a60",
