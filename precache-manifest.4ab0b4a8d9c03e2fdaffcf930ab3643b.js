@@ -1,5 +1,9 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
+    "revision": "194577a7e20bdcc7afbb718f502c134c",
+    "url": "/elm-ux-portfolio/.DS_Store"
+  },
+  {
     "revision": "987da976a8b2a4169346a497ba84749d",
     "url": "/elm-ux-portfolio/favicon.ico"
   },
@@ -8,7 +12,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/elm-ux-portfolio/headshot.png"
   },
   {
-    "revision": "4f438f2c0a75d1f9a6a437fb334c72e7",
+    "revision": "492df6cc20e4b106e24800efc6d4f592",
     "url": "/elm-ux-portfolio/index.html"
   },
   {
@@ -20,12 +24,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/elm-ux-portfolio/manifest.json"
   },
   {
-    "revision": "6ccde0d56f586b79a2c9",
+    "revision": "499b4e94267b75e38b005c137ba4879b",
+    "url": "/elm-ux-portfolio/resume.pdf"
+  },
+  {
+    "revision": "b5cf3b8a17cc0af448e1",
     "url": "/elm-ux-portfolio/static/css/main.0af5c45f.chunk.css"
   },
   {
-    "revision": "6ccde0d56f586b79a2c9",
-    "url": "/elm-ux-portfolio/static/js/main.6ccde0d5.chunk.js"
+    "revision": "b5cf3b8a17cc0af448e1",
+    "url": "/elm-ux-portfolio/static/js/main.b5cf3b8a.chunk.js"
   },
   {
     "revision": "fdb9ace01c0a27ff2a60",
