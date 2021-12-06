@@ -8,11 +8,10 @@
   "vendors~main.js.map": "/elm-ux-portfolio/static/js/vendors~main.0b49ec49.chunk.js.map",
   "./service-worker.js": "/elm-ux-portfolio/./service-worker.js",
   ".DS_Store": "/elm-ux-portfolio/.DS_Store",
-  "favicon.ico": "/elm-ux-portfolio/favicon.ico",
   "headshot.png": "/elm-ux-portfolio/headshot.png",
   "index.html": "/elm-ux-portfolio/index.html",
   "logo.svg": "/elm-ux-portfolio/logo.svg",
   "manifest.json": "/elm-ux-portfolio/manifest.json",
-  "precache-manifest.4ab0b4a8d9c03e2fdaffcf930ab3643b.js": "/elm-ux-portfolio/precache-manifest.4ab0b4a8d9c03e2fdaffcf930ab3643b.js",
+  "precache-manifest.9983167df602ee68f50368eb1c4d59c7.js": "/elm-ux-portfolio/precache-manifest.9983167df602ee68f50368eb1c4d59c7.js",
   "resume.pdf": "/elm-ux-portfolio/resume.pdf"
 }

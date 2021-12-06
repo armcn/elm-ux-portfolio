@@ -4,19 +4,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/elm-ux-portfolio/.DS_Store"
   },
   {
-    "revision": "987da976a8b2a4169346a497ba84749d",
-    "url": "/elm-ux-portfolio/favicon.ico"
-  },
-  {
     "revision": "67e65ba30257d8df4dce618c78c5387a",
     "url": "/elm-ux-portfolio/headshot.png"
   },
   {
-    "revision": "492df6cc20e4b106e24800efc6d4f592",
+    "revision": "9274c7cfc0367ef4c14ad0ed706010b2",
     "url": "/elm-ux-portfolio/index.html"
   },
   {
-    "revision": "6ead519905b7b907c00965be37dd5cd7",
+    "revision": "27d7bd1741aad2a9a70fd2bb6a38d2ae",
     "url": "/elm-ux-portfolio/logo.svg"
   },
   {
