@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/elm-ux-portfolio/precache-manifest.7cd0879854180ea11caece518fcffd58.js"
+  "/precache-manifest.d19b861e5fd9250deae74a831783f14f.js"
 );
 
 workbox.core.skipWaiting();

@@ -361,9 +361,9 @@ socialLinks model =
         , paddingEach { edges | top = padXl model }
         , spacing <| padSm model
         ]
-        [ socialLink Icons.dribbble "https://dribbble.com/marsvic"
+        [ socialLink Icons.linkedin "https://www.linkedin.com/in/mariayevickery"
+        , socialLink Icons.dribbble "https://dribbble.com/marsvic"
         , socialLink Icons.behance "https://www.behance.net/mariayevickery"
-        , socialLink Icons.linkedin "https://www.linkedin.com/in/mariayevickery"
         , socialLink Icons.instagram "https://www.instagram.com/marsviux"
         , socialLink Icons.twitter "https://twitter.com/marsviux"
         ]
@@ -747,7 +747,6 @@ viewAbout model =
         ]
         [ sectionTitle "ABOUT" model
         , about model
-        , resumeButton model
         ]
 
 
@@ -762,23 +761,26 @@ about model =
                     { edges | top = padXl model }
                 , spacing <| padLg model
                 ]
-                [ el [ width <| fillPortion 1 ] <|
+                [ el
+                    [ width <| fillPortion 1
+                    , alignTop
+                    ]
+                  <|
                     image [ width fill ]
                         { src = "%PUBLIC_URL%/headshot.png"
                         , description = "Photo of Mariaye Vickery"
                         }
-                , el
-                    [ width <| fillPortion 2
-                    , alignTop
+                , column [ width <| fillPortion 2 ]
+                    [ el [ width fill ] <|
+                        paragraph
+                            [ spacing <| fontMd model
+                            , Font.alignLeft
+                            , Font.size <| fontMd model
+                            , Font.family sansSerif
+                            ]
+                            [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
+                    , resumeButton model
                     ]
-                  <|
-                    paragraph
-                        [ spacing <| fontMd model
-                        , Font.alignLeft
-                        , Font.size <| fontMd model
-                        , Font.family sansSerif
-                        ]
-                        [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
                 ]
 
         Phone ->
@@ -818,11 +820,7 @@ resumeButton model =
             <|
                 text "DOWNLOAD RESUME"
     in
-    el
-        [ centerX
-        , paddingEach { edges | top = padLg model }
-        ]
-    <|
+    el [ paddingEach { edges | top = padLg model } ] <|
         downloadAs []
             { label = label
             , filename = "Mariaye Vickery's Resume"
@@ -855,10 +853,10 @@ contact model =
         ]
         [ email model
         , linkedin model
+        , dribbble model
+        , behance model
         , instagram model
         , twitter model
-        , behance model
-        , dribbble model
         ]
 
 
@@ -866,9 +864,9 @@ email : Model -> Element Msg
 email =
     contactUrl
         Icons.email
-        ""
+        "mailto:mariaye.vickery@gmail.com"
         "mariaye.vickery@gmail.com"
-        False
+        True
 
 
 linkedin : Model -> Element Msg
@@ -876,7 +874,7 @@ linkedin =
     contactUrl
         Icons.linkedin
         "http://linkedin.com/in/mariayevickery/"
-        "linkedin.com/in/mariayevickery/"
+        "linkedin.com/in/mariayevickery"
         True
 
 
@@ -985,10 +983,10 @@ socialIconHeight : Model -> Int
 socialIconHeight model =
     case model.device of
         Desktop ->
-            scaleFromWidth 0.0138 model
+            scaleFromWidth 0.02 model
 
         Phone ->
-            scaleFromWidth 0.1 model
+            scaleFromWidth 0.07 model
 
 
 scaleFromWidth : Float -> Model -> Int
@@ -1202,7 +1200,7 @@ sansSerif : List Font.Font
 sansSerif =
     [ Font.external
         { name = "Roboto"
-        , url = "https://fonts.googleapis.com/css?family=Roboto"
+        , url = "https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
         }
     , Font.sansSerif
     ]
