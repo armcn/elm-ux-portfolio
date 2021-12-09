@@ -10,12 +10,11 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 import Html exposing (Html)
-import Icons
+import Icons exposing (Icon, contraryGarden, honeysuckle)
 import SmoothScroll
 import Svg
 import Svg.Attributes
 import Task
-import VirtualDom
 
 
 
@@ -45,7 +44,7 @@ type Project
     | Luna
     | DailyUI
     | ContraryGarden
-    | Misc
+    | None
 
 
 type alias Model =
@@ -220,9 +219,8 @@ view model =
 viewDesktop : Model -> Html Msg
 viewDesktop model =
     layout
-        [ width fill
-        , inFront <| navBar model
-        , inFront <| viewSidebar model
+        [ inFront <| navBar model
+        , inFront <| sidebar model
         ]
     <|
         row
@@ -230,158 +228,31 @@ viewDesktop model =
             , height fill
             , Background.color cream
             ]
-            [ viewMain model ]
+            [ mainArea Desktop model ]
 
 
 viewPhone : Model -> Html Msg
 viewPhone model =
-    layout [ width fill ] <|
+    layout [] <|
         column [ width fill ]
-            [ viewTopbar model
-            , viewMain model
+            [ topbar model
+            , mainArea Phone model
             ]
-
-
-viewTopbar : Model -> Element Msg
-viewTopbar model =
-    row
-        [ width fill
-        , padding <| padSm model
-        , spacing <| padSm model
-        , Background.color darkBrown
-        ]
-        [ personName model
-        , personLogo model
-        , personTitle model
-        ]
-
-
-viewSocialLinks : Model -> Element Msg
-viewSocialLinks model =
-    row
-        [ width fill
-        , padding <| padLg model
-        , alignBottom
-        , Background.color darkBrown
-        ]
-        [ socialLinks model ]
-
-
-viewSidebar : Model -> Element Msg
-viewSidebar model =
-    column
-        [ width <| px <| scaleFromWidth 0.33 model
-        , height fill
-        , paddingEach
-            { edges | top = padXxl model }
-        , spacing <| padSm model
-        , Background.color darkBrown
-        ]
-        [ personName model
-        , personLogo model
-        , personTitle model
-        , socialLinks model
-        ]
-
-
-personName : Model -> Element Msg
-personName model =
-    el
-        [ centerX
-        , centerY
-        , Font.size <| fontLg model
-        , Font.color white
-        , Font.family serif
-        ]
-    <|
-        text "Mariaye Vickery"
-
-
-personLogo : Model -> Element Msg
-personLogo model =
-    let
-        color =
-            toSvgColor brown
-
-        height =
-            String.fromInt <|
-                scaleFromWidth 0.136 model
-    in
-    el [ centerX, centerY ] <|
-        html <|
-            Icons.logo
-                [ Svg.Attributes.fill color
-                , Svg.Attributes.height height
-                ]
-
-
-personTitle : Model -> Element Msg
-personTitle model =
-    let
-        size =
-            fontSm model
-
-        spacing =
-            toFloat size * 0.23
-    in
-    el
-        [ centerX
-        , centerY
-        , Font.color white
-        , Font.size size
-        , Font.letterSpacing spacing
-        , Font.family sansSerif
-        ]
-    <|
-        text "JR. UI/UX DESIGNER"
-
-
-socialLinks : Model -> Element Msg
-socialLinks model =
-    let
-        height =
-            String.fromInt <|
-                socialIconHeight model
-
-        socialIcon icon =
-            el [] <|
-                html <|
-                    icon
-                        [ Svg.Attributes.height height ]
-
-        socialLink icon url =
-            newTabLink []
-                { url = url
-                , label = socialIcon icon
-                }
-    in
-    row
-        [ centerX
-        , centerY
-        , paddingEach { edges | top = padXl model }
-        , spacing <| padSm model
-        ]
-        [ socialLink Icons.linkedin "https://www.linkedin.com/in/mariayevickery"
-        , socialLink Icons.dribbble "https://dribbble.com/marsvic"
-        , socialLink Icons.behance "https://www.behance.net/mariayevickery"
-        , socialLink Icons.instagram "https://www.instagram.com/marsviux"
-        , socialLink Icons.twitter "https://twitter.com/marsviux"
-        ]
 
 
 navBar : Model -> Element Msg
 navBar model =
     let
-        padding =
+        pads =
             { edges
-                | top = padXl model
+                | top = padLg model
                 , bottom = padLg model
-                , left = scaleFromWidth 0.33 model
+                , left = oneThirdWidth model
             }
     in
     el
         [ width fill
-        , paddingEach padding
+        , paddingEach pads
         , Background.color creamTranslucent
         ]
     <|
@@ -389,14 +260,29 @@ navBar model =
             [ centerX
             , spacing <| padXl model
             ]
-            [ buttonNav "PORTFOLIO" Portfolio model
-            , buttonNav "ABOUT" About model
-            , buttonNav "CONTACT" Contact model
+            [ navPortfolio model
+            , navAbout model
+            , navContact model
             ]
 
 
-buttonNav : String -> Tab -> Model -> Element Msg
-buttonNav label tab model =
+navPortfolio : Model -> Element Msg
+navPortfolio =
+    navButton "PORTFOLIO" Portfolio
+
+
+navAbout : Model -> Element Msg
+navAbout =
+    navButton "ABOUT" About
+
+
+navContact : Model -> Element Msg
+navContact =
+    navButton "CONTACT" Contact
+
+
+navButton : String -> Tab -> Model -> Element Msg
+navButton label tab model =
     let
         isActiveTab =
             model.activeTab == tab
@@ -416,17 +302,17 @@ buttonNav label tab model =
             else
                 darkGrey
 
-        size =
+        fontSize =
             fontMd model
 
-        spacing =
-            toFloat size * 0.15
+        letterSpacing =
+            toFloat fontSize * 0.15
 
         buttonLabel =
             el
-                [ Font.size size
+                [ Font.size fontSize
+                , Font.letterSpacing letterSpacing
                 , Font.color fontColor
-                , Font.letterSpacing spacing
                 , Font.family sansSerif
                 , Events.onMouseEnter <| NavHover tab
                 , Events.onMouseLeave NavLeave
@@ -440,68 +326,219 @@ buttonNav label tab model =
         }
 
 
-viewMain : Model -> Element Msg
-viewMain model =
+topbar : Model -> Element Msg
+topbar model =
+    row
+        [ width fill
+        , height <| px <| padXxl model
+        , padding <| padSm model
+        , spacing <| padSm model
+        , Background.color darkBrown
+        ]
+        [ personName Phone model
+        , personLogo
+        , personJobTitle Phone model
+        ]
+
+
+sidebar : Model -> Element Msg
+sidebar model =
+    el
+        [ width <| px <| oneThirdWidth model
+        , height fill
+        , Background.color darkBrown
+        ]
+    <|
+        column
+            [ width fill
+            , height fill
+            , spacing <| padXxl model
+            ]
+            [ column
+                [ centerX
+                , centerY
+                , spacing <| padSm model
+                ]
+                [ personName Desktop model
+                , personLogo
+                , personJobTitle Desktop model
+                ]
+            , socialLinks model
+            ]
+
+
+personName : Device -> Model -> Element Msg
+personName device model =
     let
-        pad =
-            case model.device of
+        fontSize =
+            case device of
                 Desktop ->
-                    { edges | left = scaleFromWidth 0.33 model }
+                    fontLg model
+
+                Phone ->
+                    fontMd model
+    in
+    el
+        [ centerX
+        , Font.size fontSize
+        , Font.color white
+        , Font.family serif
+        ]
+    <|
+        text "Mariaye Vickery"
+
+
+personLogo : Element Msg
+personLogo =
+    el
+        [ width fill
+        , height fill
+        , centerX
+        ]
+    <|
+        html <|
+            Icons.logo
+                [ Svg.Attributes.fill <|
+                    toSvgColor brown
+                ]
+
+
+personJobTitle : Device -> Model -> Element Msg
+personJobTitle device model =
+    let
+        fontSize =
+            fontSm model
+
+        letterSpacing =
+            case device of
+                Desktop ->
+                    toFloat fontSize * 0.23
+
+                Phone ->
+                    0
+    in
+    el
+        [ centerX
+        , centerY
+        , Font.color white
+        , Font.size fontSize
+        , Font.letterSpacing letterSpacing
+        , Font.family sansSerif
+        ]
+    <|
+        text "JR. UI/UX DESIGNER"
+
+
+socialLinks : Model -> Element Msg
+socialLinks model =
+    row
+        [ centerX
+        , centerY
+        , spacing <| padSm model
+        ]
+        [ linkedinIconLink model
+        , dribbbleIconLink model
+        , behanceIconLink model
+        , instagramIconLink model
+        , twitterIconLink model
+        ]
+
+
+linkedinIconLink : Model -> Element Msg
+linkedinIconLink =
+    socialLink Icons.linkedin linkedinUrl
+
+
+dribbbleIconLink : Model -> Element Msg
+dribbbleIconLink =
+    socialLink Icons.dribbble dribbbleUrl
+
+
+behanceIconLink : Model -> Element Msg
+behanceIconLink =
+    socialLink Icons.behance behanceUrl
+
+
+instagramIconLink : Model -> Element Msg
+instagramIconLink =
+    socialLink Icons.instagram instagramUrl
+
+
+twitterIconLink : Model -> Element Msg
+twitterIconLink =
+    socialLink Icons.twitter twitterUrl
+
+
+socialLink : Icon Msg -> String -> Model -> Element Msg
+socialLink icon url model =
+    let
+        height =
+            String.fromInt <|
+                socialIconHeight model
+
+        socialIcon =
+            html <|
+                icon
+                    [ Svg.Attributes.height height ]
+    in
+    newTabLink []
+        { url = url
+        , label = socialIcon
+        }
+
+
+mainArea : Device -> Model -> Element Msg
+mainArea device model =
+    let
+        pads =
+            case device of
+                Desktop ->
+                    { edges | left = oneThirdWidth model }
 
                 Phone ->
                     edges
     in
     column
         [ width fill
-        , alignTop
-        , paddingEach pad
+        , paddingEach pads
         , Background.color cream
         ]
-        [ viewPortfolio model
-        , viewAbout model
-        , viewContact model
+        [ portfolio device model
+        , about model
+        , contact model
         ]
 
 
-viewPortfolio : Model -> Element Msg
-viewPortfolio model =
-    case model.device of
-        Desktop ->
-            viewPortfolioDesktop model
+portfolio : Device -> Model -> Element Msg
+portfolio device model =
+    let
+        pads =
+            case device of
+                Desktop ->
+                    { edges | top = scaleFromWidth 0.125 model }
 
-        Phone ->
-            viewPortfolioPhone model
-
-
-viewPortfolioDesktop : Model -> Element Msg
-viewPortfolioDesktop model =
+                Phone ->
+                    { edges | top = padXl model }
+    in
     column
         [ width fill
-        , paddingEach
-            { edges | top = scaleFromWidth 0.125 model }
+        , paddingEach pads
         ]
         [ sectionTitle "PROJECTS" model
-        , projectsGridDesktop model
+        , projectsGrid device model
         ]
 
 
-viewPortfolioPhone : Model -> Element Msg
-viewPortfolioPhone model =
-    column
-        [ width fill
-        , paddingEach
-            { edges | top = padXl model }
-        ]
-        [ sectionTitle "PROJECTS" model
-        , projectsGridPhone model
-        ]
-
-
-projectsGridDesktop : Model -> Element Msg
-projectsGridDesktop model =
+projectsGrid : Device -> Model -> Element Msg
+projectsGrid device model =
     let
         gridSpacing =
-            padLg model
+            case device of
+                Desktop ->
+                    padLg model
+
+                Phone ->
+                    padMd model
 
         gridRow =
             row [ spacing gridSpacing ]
@@ -515,70 +552,43 @@ projectsGridDesktop model =
                 ]
 
         dimension =
-            projectSquareDimension model
+            squareProjectDimension model
+
+        roco =
+            squareRoco dimension model
+
+        honeysuckle =
+            squareHoneysuckle dimension model
+
+        luna =
+            squareLuna dimension model
+
+        dailyUI =
+            squareDailyUI dimension model
+
+        contraryGarden =
+            squareContraryGarden dimension model
+
+        blank =
+            squareBlank dimension model
     in
-    grid
-        [ gridRow
-            [ squareRoco dimension model
-            , squareHoneysuckle dimension model
-            , squareLuna dimension model
-            ]
-        , gridRow
-            [ squareDailyUI dimension model
-            , squareContraryGarden dimension model
-            , blankProjectSquare Misc dimension model
-            ]
-        ]
-
-
-projectsGridPhone : Model -> Element Msg
-projectsGridPhone model =
-    let
-        gridSpacing =
-            padMd model
-
-        gridRow =
-            row [ spacing gridSpacing ]
-
-        grid =
-            column
-                [ centerX
-                , paddingEach
-                    { edges | top = padXl model }
-                , spacing gridSpacing
+    grid <|
+        case device of
+            Desktop ->
+                [ gridRow [ roco, honeysuckle, luna ]
+                , gridRow [ dailyUI, contraryGarden, blank ]
                 ]
 
-        dimension =
-            projectSquareDimension model
-    in
-    grid
-        [ gridRow
-            [ squareRoco dimension model
-            , squareHoneysuckle dimension model
-            ]
-        , gridRow
-            [ squareLuna dimension model
-            , squareDailyUI dimension model
-            ]
-        , gridRow
-            [ squareContraryGarden dimension model
-            , blankProjectSquare Misc dimension model
-            ]
-        ]
-
-
-squareDailyUI : Int -> Model -> Element Msg
-squareDailyUI =
-    projectSquare
-        Icons.dailyUI
-        "https://www.behance.net/mariayevickery"
-        "Daily UI Exercises"
-        DailyUI
+            Phone ->
+                [ gridRow [ roco, honeysuckle ]
+                , gridRow [ luna, dailyUI ]
+                , gridRow [ contraryGarden, blank ]
+                ]
 
 
 squareRoco : Int -> Model -> Element Msg
 squareRoco =
-    projectSquare
+    squareProject
         Icons.roco
         "https://www.behance.net/gallery/131255429/Roco"
         "Concept, branding, mobile UI/UX"
@@ -587,7 +597,7 @@ squareRoco =
 
 squareHoneysuckle : Int -> Model -> Element Msg
 squareHoneysuckle =
-    projectSquare
+    squareProject
         Icons.honeysuckle
         "https://www.behance.net/gallery/131255777/Honeysuckle-Chopsaw"
         "Concept, branding, web and mobile UI/UX"
@@ -596,31 +606,42 @@ squareHoneysuckle =
 
 squareLuna : Int -> Model -> Element Msg
 squareLuna =
-    projectSquare
+    squareProject
         Icons.luna
         "https://www.behance.net/gallery/131256029/Luna"
         "Concept, branding, web and mobile UI/UX"
         Luna
 
 
+squareDailyUI : Int -> Model -> Element Msg
+squareDailyUI =
+    squareProject
+        Icons.dailyUI
+        "https://www.behance.net/mariayevickery"
+        "Daily UI Exercises"
+        DailyUI
+
+
 squareContraryGarden : Int -> Model -> Element Msg
 squareContraryGarden =
-    projectSquare
+    squareProject
         Icons.contraryGarden
         "https://society6.com/mariaye"
         "Concept, branding, web and mobile UI/UX"
         ContraryGarden
 
 
-projectSquare :
-    (List (VirtualDom.Attribute Msg) -> Svg.Svg Msg)
-    -> String
-    -> String
-    -> Project
-    -> Int
-    -> Model
-    -> Element Msg
-projectSquare icon url description project dimension model =
+squareBlank : Int -> Model -> Element Msg
+squareBlank =
+    squareProject
+        (\_ -> Svg.svg [] [])
+        ""
+        ""
+        None
+
+
+squareProject : Icon Msg -> String -> String -> Project -> Int -> Model -> Element Msg
+squareProject icon url description project dimension model =
     let
         isHovered =
             case model.hoveredProject of
@@ -635,6 +656,7 @@ projectSquare icon url description project dimension model =
                 el
                     [ width <| px dimension
                     , height <| px dimension
+                    , padding <| padXs model
                     , Background.color
                         darkBrownTranslucent
                     ]
@@ -642,7 +664,6 @@ projectSquare icon url description project dimension model =
                     paragraph
                         [ centerX
                         , centerY
-                        , padding <| scaleFromWidth 0.005 model
                         , Font.size <| fontSm model
                         , Font.color white
                         , Font.family sansSerif
@@ -652,16 +673,16 @@ projectSquare icon url description project dimension model =
             else
                 none
 
-        shadowY =
-            toFloat <|
-                scaleFromWidth 0.0028 model
-
         projectIcon =
             html <|
                 icon
                     [ Svg.Attributes.height <|
                         String.fromInt dimension
                     ]
+
+        shadowY =
+            toFloat <|
+                scaleFromWidth 0.006 model
     in
     newTabLink
         [ width <| px dimension
@@ -683,128 +704,86 @@ projectSquare icon url description project dimension model =
         }
 
 
-blankProjectSquare : Project -> Int -> Model -> Element Msg
-blankProjectSquare project dimension model =
-    let
-        isHovered =
-            case model.hoveredProject of
-                Just hoveredProject ->
-                    hoveredProject == project
-
-                Nothing ->
-                    False
-
-        overlay =
-            if isHovered then
-                el
-                    [ width <| px dimension
-                    , height <| px dimension
-                    , Background.color
-                        darkBrownTranslucent
-                    ]
-                <|
-                    paragraph
-                        [ centerX
-                        , centerY
-                        , padding <| scaleFromWidth 0.005 model
-                        , Font.size <| fontSm model
-                        , Font.color white
-                        , Font.family sansSerif
-                        ]
-                        []
-
-            else
-                none
-
-        shadowY =
-            toFloat <|
-                scaleFromWidth 0.0028 model
-    in
-    el
-        [ width <| px dimension
-        , height <| px dimension
-        , Background.color lightBrownTranslucent
-        , Border.shadow
-            { offset = ( 0, shadowY )
-            , size = 0
-            , blur = shadowY
-            , color = blackTranslucent
-            }
-        , Events.onMouseEnter <| ProjectHover project
-        , Events.onMouseLeave ProjectLeave
-        , Events.onClick ProjectLeave
-        , inFront overlay
-        ]
-        none
-
-
-viewAbout : Model -> Element Msg
-viewAbout model =
-    column
-        [ width fill
-        , paddingEach
-            { edges | top = padXxl model }
-        ]
-        [ sectionTitle "ABOUT" model
-        , about model
-        ]
-
-
 about : Model -> Element Msg
 about model =
-    case model.device of
-        Desktop ->
-            row
-                [ width <| px <| sectionWidth model
-                , centerX
-                , paddingEach
-                    { edges | top = padXl model }
-                , spacing <| padLg model
-                ]
-                [ el
-                    [ width <| fillPortion 1
-                    , alignTop
-                    ]
-                  <|
-                    image [ width fill ]
-                        { src = "%PUBLIC_URL%/headshot.png"
-                        , description = "Photo of Mariaye Vickery"
-                        }
-                , column [ width <| fillPortion 2 ]
-                    [ el [ width fill ] <|
-                        paragraph
-                            [ spacing <| fontMd model
-                            , Font.alignLeft
-                            , Font.size <| fontMd model
-                            , Font.family sansSerif
-                            ]
-                            [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
-                    , resumeButton model
-                    ]
-                ]
+    let
+        content =
+            case model.device of
+                Desktop ->
+                    aboutDesktop model
 
-        Phone ->
-            column
-                [ width <| px <| sectionWidth model
-                , centerX
-                , paddingEach
-                    { edges | top = padXl model }
-                , spacing <| padLg model
+                Phone ->
+                    aboutPhone model
+    in
+    column
+        [ centerX
+        , paddingEach { edges | top = padXxl model }
+        ]
+        [ sectionTitle "ABOUT" model
+        , content
+        ]
+
+
+aboutDesktop : Model -> Element Msg
+aboutDesktop model =
+    row
+        [ width <| px <| sectionWidth model
+        , centerX
+        , paddingEach { edges | top = padXl model }
+        , spacing <| padLg model
+        ]
+        [ el
+            [ width <| fillPortion 1
+            , alignTop
+            ]
+          <|
+            image [ width fill ]
+                { src = "%PUBLIC_URL%/headshot.png"
+                , description = "Photo of Mariaye Vickery"
+                }
+        , column
+            [ width <| fillPortion 2
+            , spacing <| padLg model
+            ]
+            [ paragraph
+                [ spacing <| fontMd model
+                , Font.alignLeft
+                , Font.size <| fontMd model
+                , Font.family sansSerif
                 ]
-                [ el [ width fill ] <|
-                    image [ width fill ]
-                        { src = "%PUBLIC_URL%/headshot.png"
-                        , description = "Photo of Mariaye Vickery"
-                        }
-                , el [ alignTop ] <|
-                    paragraph
-                        [ spacing <| fontMd model
-                        , Font.alignLeft
-                        , Font.size <| fontMd model
-                        , Font.family sansSerif
-                        ]
-                        [ text "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design." ]
-                ]
+                [ text aboutText ]
+            , resumeButton model
+            ]
+        ]
+
+
+aboutPhone : Model -> Element Msg
+aboutPhone model =
+    column
+        [ width <| px <| sectionWidth model
+        , centerX
+        , paddingEach { edges | top = padXl model }
+        , spacing <| padLg model
+        ]
+        [ image [ width fill ]
+            { src = "%PUBLIC_URL%/headshot.png"
+            , description = "Photo of Mariaye Vickery"
+            }
+        , paragraph
+            [ alignTop
+            , spacing <| fontMd model
+            , Font.alignLeft
+            , Font.size <| fontMd model
+            , Font.family sansSerif
+            ]
+            [ text aboutText ]
+        , resumeButton model
+        ]
+
+
+aboutText : String
+aboutText =
+    "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design."
 
 
 resumeButton : Model -> Element Msg
@@ -820,108 +799,92 @@ resumeButton model =
             <|
                 text "DOWNLOAD RESUME"
     in
-    el [ paddingEach { edges | top = padLg model } ] <|
-        downloadAs []
-            { label = label
-            , filename = "Mariaye Vickery's Resume"
-            , url = "%PUBLIC_URL%/resume.pdf"
-            }
-
-
-viewContact : Model -> Element Msg
-viewContact model =
-    column
-        [ width fill
-        , paddingEach
-            { edges | top = padXxl model }
-        ]
-        [ sectionTitle "CONTACT" model
-        , contact model
-        ]
+    downloadAs []
+        { label = label
+        , filename = "Mariaye Vickery's Resume"
+        , url = "%PUBLIC_URL%/resume.pdf"
+        }
 
 
 contact : Model -> Element Msg
 contact model =
+    let
+        content =
+            column
+                [ spacing <| padLg model
+                , paddingEach
+                    { edges
+                        | top = padXl model
+                        , bottom = scaleFromWidth 0.11 model
+                    }
+                ]
+                [ emailContactLink model
+                , linkedinContactLink model
+                , dribbbleContactLink model
+                , behanceContactLink model
+                , instagramContactLink model
+                , twitterContactLink model
+                ]
+    in
     column
         [ centerX
-        , spacing <| padLg model
-        , paddingEach
-            { edges
-                | top = padXl model
-                , bottom = scaleFromWidth 0.11 model
-            }
+        , paddingEach { edges | top = padXxl model }
         ]
-        [ email model
-        , linkedin model
-        , dribbble model
-        , behance model
-        , instagram model
-        , twitter model
+        [ sectionTitle "CONTACT" model
+        , content
         ]
 
 
-email : Model -> Element Msg
-email =
-    contactUrl
+emailContactLink : Model -> Element Msg
+emailContactLink =
+    contactLink
         Icons.email
         "mailto:mariaye.vickery@gmail.com"
         "mariaye.vickery@gmail.com"
-        True
 
 
-linkedin : Model -> Element Msg
-linkedin =
-    contactUrl
+linkedinContactLink : Model -> Element Msg
+linkedinContactLink =
+    contactLink
         Icons.linkedin
-        "http://linkedin.com/in/mariayevickery/"
+        linkedinUrl
         "linkedin.com/in/mariayevickery"
-        True
 
 
-instagram : Model -> Element Msg
-instagram =
-    contactUrl
+instagramContactLink : Model -> Element Msg
+instagramContactLink =
+    contactLink
         Icons.instagram
-        "http://instagram.com/marsviux"
+        instagramUrl
         "instagram.com/marsviux"
-        True
 
 
-twitter : Model -> Element Msg
-twitter =
-    contactUrl
+twitterContactLink : Model -> Element Msg
+twitterContactLink =
+    contactLink
         Icons.twitter
-        "http://twitter.com/marsviux"
+        twitterUrl
         "twitter.com/marsviux"
-        True
 
 
-behance : Model -> Element Msg
-behance =
-    contactUrl
+behanceContactLink : Model -> Element Msg
+behanceContactLink =
+    contactLink
         Icons.behance
-        "http://behance.net/mariayevickery"
+        behanceUrl
         "behance.net/mariayevickery"
-        True
 
 
-dribbble : Model -> Element Msg
-dribbble =
-    contactUrl
+dribbbleContactLink : Model -> Element Msg
+dribbbleContactLink =
+    contactLink
         Icons.dribbble
-        "http://dribbble.com/marsvic"
+        dribbbleUrl
         "dribbble.com/marsvic"
-        True
 
 
-contactUrl :
-    (List (VirtualDom.Attribute Msg) -> Svg.Svg Msg)
-    -> String
-    -> String
-    -> Bool
-    -> Model
-    -> Element Msg
-contactUrl icon url label isLink model =
+contactLink : Icon Msg -> String -> String -> Model -> Element Msg
+contactLink icon url label model =
     let
         height =
             String.fromInt <|
@@ -933,46 +896,37 @@ contactUrl icon url label isLink model =
                     icon
                         [ Svg.Attributes.height height ]
 
-        link =
-            if isLink then
-                newTabLink []
-                    { label =
-                        el
-                            [ Font.size <| fontMd model
-                            , Font.family <| sansSerif
-                            ]
-                        <|
-                            text label
-                    , url = url
-                    }
+        linkText =
+            el
+                [ Font.size <| fontMd model
+                , Font.family <| sansSerif
+                ]
+            <|
+                text label
 
-            else
-                el
-                    [ Font.size <| fontMd model
-                    , Font.family <| sansSerif
-                    ]
-                <|
-                    text label
+        linkLabel =
+            row [ spacing <| padSm model ]
+                [ socialIcon, linkText ]
     in
-    row [ spacing <| padSm model ]
-        [ socialIcon
-        , link
-        ]
+    newTabLink []
+        { label = linkLabel
+        , url = url
+        }
 
 
 sectionTitle : String -> Model -> Element Msg
 sectionTitle title model =
     let
-        size =
+        fontSize =
             fontXxl model
 
-        spacing =
-            toFloat size * 0.15
+        letterSpacing =
+            toFloat fontSize * 0.15
     in
     el
         [ centerX
-        , Font.size size
-        , Font.letterSpacing spacing
+        , Font.size fontSize
+        , Font.letterSpacing letterSpacing
         , Font.family serif
         ]
     <|
@@ -989,6 +943,11 @@ socialIconHeight model =
             scaleFromWidth 0.07 model
 
 
+oneThirdWidth : Model -> Int
+oneThirdWidth =
+    scaleFromWidth (1 / 3)
+
+
 scaleFromWidth : Float -> Model -> Int
 scaleFromWidth factor model =
     scale factor model.screenSize.width
@@ -1002,8 +961,8 @@ scale factor number =
         |> round
 
 
-projectSquareDimension : Model -> Int
-projectSquareDimension model =
+squareProjectDimension : Model -> Int
+squareProjectDimension model =
     case model.device of
         Desktop ->
             scaleFromWidth 0.136 model
@@ -1016,7 +975,7 @@ sectionWidth : Model -> Int
 sectionWidth model =
     let
         squareWidth =
-            projectSquareDimension model
+            squareProjectDimension model
 
         padding =
             padLg model
@@ -1029,8 +988,24 @@ sectionWidth model =
             2 * squareWidth + padding
 
 
-
----- COLOR ----
+toSvgColor : Color -> String
+toSvgColor color =
+    let
+        to255 accessor =
+            toRgb color
+                |> accessor
+                |> (*) 255
+                |> String.fromFloat
+    in
+    String.concat
+        [ "rgb("
+        , to255 .red
+        , ","
+        , to255 .green
+        , ","
+        , to255 .blue
+        , ")"
+        ]
 
 
 white : Color
@@ -1045,7 +1020,7 @@ cream =
 
 creamTranslucent : Color
 creamTranslucent =
-    rgba255 243 242 237 0.9
+    rgba255 243 242 237 0.92
 
 
 lightBrown : Color
@@ -1083,35 +1058,6 @@ blackTranslucent =
     rgba255 0 0 0 0.25
 
 
-toSvgColor : Color -> String
-toSvgColor color =
-    let
-        to255 accessor =
-            toRgb color
-                |> accessor
-                |> (*) 255
-                |> String.fromFloat
-    in
-    String.concat
-        [ "rgb("
-        , to255 .red
-        , ","
-        , to255 .green
-        , ","
-        , to255 .blue
-        , ")"
-        ]
-
-
-
----- PADDING ----
-
-
-edges : { left : Int, right : Int, top : Int, bottom : Int }
-edges =
-    { left = 0, right = 0, top = 0, bottom = 0 }
-
-
 padXxl : Model -> Int
 padXxl =
     scalePad << padXl
@@ -1142,13 +1088,19 @@ padSm model =
             scaleFromWidth 0.05 model
 
 
+padXs : Model -> Int
+padXs model =
+    round <| toFloat (padSm model) / 1.5
+
+
 scalePad : Int -> Int
 scalePad =
     scale 1.5
 
 
-
----- FONT ----
+edges : { left : Int, right : Int, top : Int, bottom : Int }
+edges =
+    { left = 0, right = 0, top = 0, bottom = 0 }
 
 
 fontXxl : Model -> Int
@@ -1178,7 +1130,7 @@ fontSm model =
             scaleFromWidth 0.01 model
 
         Phone ->
-            scaleFromWidth 0.025 model
+            scaleFromWidth 0.03 model
 
 
 scaleFont : Int -> Int
@@ -1204,6 +1156,31 @@ sansSerif =
         }
     , Font.sansSerif
     ]
+
+
+linkedinUrl : String
+linkedinUrl =
+    "https://www.linkedin.com/in/mariayevickery"
+
+
+dribbbleUrl : String
+dribbbleUrl =
+    "https://dribbble.com/marsvic"
+
+
+behanceUrl : String
+behanceUrl =
+    "https://www.behance.net/mariayevickery"
+
+
+instagramUrl : String
+instagramUrl =
+    "https://www.instagram.com/marsviux"
+
+
+twitterUrl : String
+twitterUrl =
+    "https://twitter.com/marsviux"
 
 
 
