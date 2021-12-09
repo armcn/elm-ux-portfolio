@@ -336,7 +336,7 @@ topbar model =
         , Background.color darkBrown
         ]
         [ personName Phone model
-        , personLogo
+        , personLogo model
         , personJobTitle Phone model
         ]
 
@@ -360,7 +360,7 @@ sidebar model =
                 , spacing <| padSm model
                 ]
                 [ personName Desktop model
-                , personLogo
+                , personLogo model
                 , personJobTitle Desktop model
                 ]
             , socialLinks model
@@ -388,8 +388,8 @@ personName device model =
         text "Mariaye Vickery"
 
 
-personLogo : Element Msg
-personLogo =
+personLogo : Model -> Element Msg
+personLogo model =
     el
         [ width fill
         , height fill
@@ -400,6 +400,9 @@ personLogo =
             Icons.logo
                 [ Svg.Attributes.fill <|
                     toSvgColor brown
+                , Svg.Attributes.height <|
+                    String.fromInt <|
+                        scaleFromWidth 0.136 model
                 ]
 
 
