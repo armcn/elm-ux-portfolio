@@ -10,7 +10,7 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 import Html exposing (Html)
-import Icons exposing (Icon, contraryGarden, honeysuckle)
+import Icons exposing (Icon)
 import SmoothScroll
 import Svg
 import Svg.Attributes
