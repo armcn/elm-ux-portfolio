@@ -614,7 +614,7 @@ squareLuna =
     squareProject
         Icons.luna
         "https://www.behance.net/gallery/131256029/Luna"
-        "Case study: Womens health"
+        "Case study: Women's health"
         "Concept, branding, web and mobile UI/UX"
         Luna
 
