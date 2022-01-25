@@ -44,7 +44,7 @@ type Project
     | Luna
     | DailyUI
     | ContraryGarden
-    | None
+    | Cleaning
 
 
 type alias Model =
@@ -572,20 +572,20 @@ projectsGrid device model =
         contraryGarden =
             squareContraryGarden dimension model
 
-        blank =
-            squareBlank dimension model
+        cleaning =
+            squareCleaning dimension model
     in
     grid <|
         case device of
             Desktop ->
-                [ gridRow [ roco, honeysuckle, luna ]
-                , gridRow [ dailyUI, contraryGarden, blank ]
+                [ gridRow [ cleaning, roco, honeysuckle ]
+                , gridRow [ luna, dailyUI, contraryGarden ]
                 ]
 
             Phone ->
-                [ gridRow [ roco, honeysuckle ]
-                , gridRow [ luna, dailyUI ]
-                , gridRow [ contraryGarden, blank ]
+                [ gridRow [ cleaning, roco ]
+                , gridRow [ honeysuckle, luna ]
+                , gridRow [ dailyUI, contraryGarden ]
                 ]
 
 
@@ -594,6 +594,7 @@ squareRoco =
     squareProject
         Icons.roco
         "https://www.behance.net/gallery/131255429/Roco"
+        "Case study: Roco"
         "Concept, branding, mobile UI/UX"
         Roco
 
@@ -603,6 +604,7 @@ squareHoneysuckle =
     squareProject
         Icons.honeysuckle
         "https://www.behance.net/gallery/131255777/Honeysuckle-Chopsaw"
+        "Case study: Wedding venue"
         "Concept, branding, web and mobile UI/UX"
         Honeysuckle
 
@@ -612,6 +614,7 @@ squareLuna =
     squareProject
         Icons.luna
         "https://www.behance.net/gallery/131256029/Luna"
+        "Case study: Womens health"
         "Concept, branding, web and mobile UI/UX"
         Luna
 
@@ -622,6 +625,7 @@ squareDailyUI =
         Icons.dailyUI
         "https://www.behance.net/mariayevickery"
         "Daily UI Exercises"
+        "UI concepts and practice"
         DailyUI
 
 
@@ -630,21 +634,23 @@ squareContraryGarden =
     squareProject
         Icons.contraryGarden
         "https://society6.com/mariaye"
-        "Concept, branding, web and mobile UI/UX"
+        "Contrary Garden"
+        "Graphic design and artwork"
         ContraryGarden
 
 
-squareBlank : Int -> Model -> Element Msg
-squareBlank =
+squareCleaning : Int -> Model -> Element Msg
+squareCleaning =
     squareProject
-        (\_ -> Svg.svg [] [])
-        ""
-        ""
-        None
+        Icons.cleaning
+        "https://www.behance.net/gallery/135853731/Shauna-Loves-Cleaning"
+        "Shauna Loves Cleaning"
+        "UI/UX Design, Web Development and Branding"
+        Cleaning
 
 
-squareProject : Icon Msg -> String -> String -> Project -> Int -> Model -> Element Msg
-squareProject icon url description project dimension model =
+squareProject : Icon Msg -> String -> String -> String -> Project -> Int -> Model -> Element Msg
+squareProject icon url heading description project dimension model =
     let
         isHovered =
             case model.hoveredProject of
@@ -656,15 +662,26 @@ squareProject icon url description project dimension model =
 
         overlay =
             if isHovered then
-                el
+                column
                     [ width <| px dimension
                     , height <| px dimension
                     , padding <| padXs model
+                    , spacing <| padSm model
                     , Background.color
                         darkBrownTranslucent
                     ]
                 <|
-                    paragraph
+                    [ el
+                        [ centerX
+                        , centerY
+                        , Font.size <| fontSm model
+                        , Font.color white
+                        , Font.bold
+                        , Font.family sansSerif
+                        ]
+                      <|
+                        text heading
+                    , paragraph
                         [ centerX
                         , centerY
                         , Font.size <| fontSm model
@@ -672,6 +689,7 @@ squareProject icon url description project dimension model =
                         , Font.family sansSerif
                         ]
                         [ text description ]
+                    ]
 
             else
                 none
