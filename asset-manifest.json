@@ -1,7 +1,7 @@
 {
   "main.css": "/static/css/main.0af5c45f.chunk.css",
-  "main.js": "/static/js/main.8cd3bbc9.chunk.js",
-  "main.js.map": "/static/js/main.8cd3bbc9.chunk.js.map",
+  "main.js": "/static/js/main.db4ab72a.chunk.js",
+  "main.js.map": "/static/js/main.db4ab72a.chunk.js.map",
   "runtime~main.js": "/static/js/runtime~main.1b922744.js",
   "runtime~main.js.map": "/static/js/runtime~main.1b922744.js.map",
   "vendors~main.js": "/static/js/vendors~main.0b49ec49.chunk.js",
@@ -12,6 +12,6 @@
   "index.html": "/index.html",
   "logo.svg": "/logo.svg",
   "manifest.json": "/manifest.json",
-  "precache-manifest.7ec451c26e35f64d6f24092b76901628.js": "/precache-manifest.7ec451c26e35f64d6f24092b76901628.js",
+  "precache-manifest.bcb61976467f3ab5e6fad80d8d45f470.js": "/precache-manifest.bcb61976467f3ab5e6fad80d8d45f470.js",
   "resume.pdf": "/resume.pdf"
 }
