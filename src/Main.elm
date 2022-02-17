@@ -1211,7 +1211,7 @@ submitButton model =
         labelText =
             case model.submitButtonState of
                 Submitted ->
-                    "Thank you! I will get back to you soon."
+                    "Thank you for your message!"
 
                 _ ->
                     "SUBMIT"
