@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "194577a7e20bdcc7afbb718f502c134c",
+    "revision": "de173ca59ae14a60a87ebfbdfaae0c83",
     "url": "/.DS_Store"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/headshot.png"
   },
   {
-    "revision": "5152b8b8769423d718d60808dd321950",
+    "revision": "a2890d557e9faabff57f0dda07659309",
     "url": "/index.html"
   },
   {
@@ -20,16 +20,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/manifest.json"
   },
   {
-    "revision": "499b4e94267b75e38b005c137ba4879b",
+    "revision": "469033239cc10e20e1a7bd27d5a78e64",
     "url": "/resume.pdf"
   },
   {
-    "revision": "76ab5bdd9242f6c57e72",
+    "revision": "095acfbe944b50570b37",
     "url": "/static/css/main.0af5c45f.chunk.css"
   },
   {
-    "revision": "76ab5bdd9242f6c57e72",
-    "url": "/static/js/main.76ab5bdd.chunk.js"
+    "revision": "095acfbe944b50570b37",
+    "url": "/static/js/main.095acfbe.chunk.js"
   },
   {
     "revision": "1b922744246c39b6bc43",
