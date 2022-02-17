@@ -10,11 +10,13 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 import Html exposing (Html)
+import Http
 import Icons exposing (Icon)
+import Json.Encode as Encode
 import SmoothScroll
-import Svg
 import Svg.Attributes
 import Task
+import Validate
 
 
 
@@ -47,18 +49,45 @@ type Project
     | Cleaning
 
 
+type alias ContactForm =
+    { firstName : String
+    , lastName : String
+    , emailAddress : String
+    , emailMessage : String
+    }
+
+
+type FormSelection
+    = FirstName
+    | LastName
+    | EmailAddress
+    | EmailMessage
+
+
+type EmailFormState
+    = EmptyEmail
+    | ValidEmail
+    | InvalidEmail
+
+
+type SubmitButtonState
+    = Unsubmitted
+    | SubmitHovered
+    | SubmitPressed
+    | Submitted
+
+
 type alias Model =
     { screenSize : ScreenSize
     , device : Device
     , activeTab : Tab
     , hoveredTab : Maybe Tab
     , hoveredProject : Maybe Project
-    }
-
-
-type alias Flags =
-    { width : Int
-    , height : Int
+    , contactForm : ContactForm
+    , formSelection : Maybe FormSelection
+    , emailFormState : EmailFormState
+    , invalidSubmission : Bool
+    , submitButtonState : SubmitButtonState
     }
 
 
@@ -69,23 +98,44 @@ init flags =
       , activeTab = Portfolio
       , hoveredTab = Nothing
       , hoveredProject = Nothing
+      , contactForm = ContactForm "" "" "" ""
+      , formSelection = Nothing
+      , emailFormState = EmptyEmail
+      , invalidSubmission = False
+      , submitButtonState = Unsubmitted
       }
     , Cmd.none
     )
+
+
+type alias Flags =
+    { width : Int
+    , height : Int
+    }
 
 
 
 ---- UPDATE ----
 
 
+type SubmitAction
+    = HoverSubmit
+    | LeaveSubmit
+    | PressSubmit
+    | UnpressSubmit
+
+
 type Msg
     = SetScreenSize Int Int
     | SetDeviceClass Int Int
-    | NavTo Tab
-    | NavHover Tab
-    | NavLeave
-    | ProjectHover Project
-    | ProjectLeave
+    | NavigateTo Tab
+    | HoverNavItem Tab
+    | LeaveNavItem
+    | HoverProject Project
+    | LeaveProject
+    | UpdateForm FormSelection String
+    | UpdateSubmit SubmitAction
+    | Uploaded (Result Http.Error ())
     | NoOp
 
 
@@ -98,20 +148,29 @@ update msg model =
         SetDeviceClass width height ->
             ( setDeviceClass width height model, Cmd.none )
 
-        NavTo tab ->
-            ( navTo tab model, scrollToSection tab model )
+        NavigateTo tab ->
+            ( navigateTo tab model, scrollToSection tab model )
 
-        NavHover tab ->
-            ( navHover tab model, Cmd.none )
+        HoverNavItem tab ->
+            ( hoverNavItem tab model, Cmd.none )
 
-        NavLeave ->
-            ( navLeave model, Cmd.none )
+        LeaveNavItem ->
+            ( leaveNavItem model, Cmd.none )
 
-        ProjectHover project ->
-            ( projectHover project model, Cmd.none )
+        HoverProject project ->
+            ( hoverProject project model, Cmd.none )
 
-        ProjectLeave ->
-            ( projectLeave model, Cmd.none )
+        LeaveProject ->
+            ( leaveProject model, Cmd.none )
+
+        UpdateForm formSelection textInput ->
+            ( updateForm formSelection textInput model, Cmd.none )
+
+        UpdateSubmit submitAction ->
+            updateSubmit submitAction model
+
+        Uploaded _ ->
+            ( model, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -127,29 +186,167 @@ setDeviceClass width height model =
     { model | device = classifyDevice width height }
 
 
-navTo : Tab -> Model -> Model
-navTo tab model =
+navigateTo : Tab -> Model -> Model
+navigateTo tab model =
     { model | activeTab = tab }
 
 
-navHover : Tab -> Model -> Model
-navHover tab model =
+hoverNavItem : Tab -> Model -> Model
+hoverNavItem tab model =
     { model | hoveredTab = Just tab }
 
 
-navLeave : Model -> Model
-navLeave model =
+leaveNavItem : Model -> Model
+leaveNavItem model =
     { model | hoveredTab = Nothing }
 
 
-projectHover : Project -> Model -> Model
-projectHover project model =
+hoverProject : Project -> Model -> Model
+hoverProject project model =
     { model | hoveredProject = Just project }
 
 
-projectLeave : Model -> Model
-projectLeave model =
+leaveProject : Model -> Model
+leaveProject model =
     { model | hoveredProject = Nothing }
+
+
+updateForm : FormSelection -> String -> Model -> Model
+updateForm formSelection textInput model =
+    let
+        contactForm =
+            model.contactForm
+
+        newContactForm =
+            case formSelection of
+                FirstName ->
+                    { contactForm | firstName = textInput }
+
+                LastName ->
+                    { contactForm | lastName = textInput }
+
+                EmailAddress ->
+                    { contactForm | emailAddress = textInput }
+
+                EmailMessage ->
+                    { contactForm | emailMessage = textInput }
+    in
+    validateEmail
+        { model
+            | contactForm = newContactForm
+            , submitButtonState = Unsubmitted
+        }
+
+
+updateSubmit : SubmitAction -> Model -> ( Model, Cmd Msg )
+updateSubmit submitAction model =
+    case submitAction of
+        HoverSubmit ->
+            ( hoverSubmit model, Cmd.none )
+
+        LeaveSubmit ->
+            ( leaveSubmit model, Cmd.none )
+
+        PressSubmit ->
+            ( pressSubmit model, Cmd.none )
+
+        UnpressSubmit ->
+            unpressSubmit model
+
+
+hoverSubmit : Model -> Model
+hoverSubmit model =
+    case model.submitButtonState of
+        Submitted ->
+            model
+
+        _ ->
+            { model | submitButtonState = SubmitHovered }
+
+
+leaveSubmit : Model -> Model
+leaveSubmit model =
+    case model.submitButtonState of
+        Submitted ->
+            model
+
+        _ ->
+            { model | submitButtonState = Unsubmitted }
+
+
+pressSubmit : Model -> Model
+pressSubmit model =
+    let
+        alreadySubmitted =
+            model.submitButtonState == Submitted
+
+        emptyEmail =
+            model.emailFormState == EmptyEmail
+    in
+    if alreadySubmitted || emptyEmail then
+        model
+
+    else if model.emailFormState == InvalidEmail then
+        { model | invalidSubmission = True }
+
+    else
+        { model | submitButtonState = SubmitPressed }
+
+
+unpressSubmit : Model -> ( Model, Cmd Msg )
+unpressSubmit model =
+    case model.emailFormState of
+        ValidEmail ->
+            ( { model
+                | submitButtonState = Submitted
+                , invalidSubmission = False
+                , contactForm = ContactForm "" "" "" ""
+              }
+            , postContact model.contactForm
+            )
+
+        _ ->
+            ( { model | submitButtonState = Unsubmitted }, Cmd.none )
+
+
+postContact : ContactForm -> Cmd Msg
+postContact contactForm =
+    Http.post
+        { url = "http://143.198.136.142/contact/contact"
+        , body = Http.jsonBody <| contactFormEncoder contactForm
+        , expect = Http.expectWhatever Uploaded
+        }
+
+
+contactFormEncoder : ContactForm -> Encode.Value
+contactFormEncoder contactForm =
+    Encode.object
+        [ ( "firstName", Encode.string contactForm.firstName )
+        , ( "lastName", Encode.string contactForm.lastName )
+        , ( "emailAddress", Encode.string contactForm.emailAddress )
+        , ( "emailMessage", Encode.string contactForm.emailMessage )
+        ]
+
+
+validateEmail : Model -> Model
+validateEmail model =
+    case Validate.validate emailValidator model of
+        Ok _ ->
+            { model | emailFormState = ValidEmail }
+
+        Err _ ->
+            if String.isEmpty model.contactForm.emailAddress then
+                { model | emailFormState = EmptyEmail }
+
+            else
+                { model | emailFormState = InvalidEmail }
+
+
+emailValidator : Validate.Validator String Model
+emailValidator =
+    Validate.ifInvalidEmail
+        (.emailAddress << .contactForm)
+        (always "Please enter a valid email address.")
 
 
 classifyDevice : Int -> Int -> Device
@@ -314,14 +511,14 @@ navButton label tab model =
                 , Font.letterSpacing letterSpacing
                 , Font.color fontColor
                 , Font.family sansSerif
-                , Events.onMouseEnter <| NavHover tab
-                , Events.onMouseLeave NavLeave
+                , Events.onMouseEnter <| HoverNavItem tab
+                , Events.onMouseLeave LeaveNavItem
                 ]
             <|
                 text label
     in
     Input.button [ focused [] ]
-        { onPress = Just <| NavTo tab
+        { onPress = Just <| NavigateTo tab
         , label = buttonLabel
         }
 
@@ -715,9 +912,9 @@ squareProject icon url heading description project dimension model =
             , blur = shadowY
             , color = blackTranslucent
             }
-        , Events.onMouseEnter <| ProjectHover project
-        , Events.onMouseLeave ProjectLeave
-        , Events.onClick ProjectLeave
+        , Events.onMouseEnter <| HoverProject project
+        , Events.onMouseLeave LeaveProject
+        , Events.onClick LeaveProject
         , inFront overlay
         ]
         { url = url
@@ -830,109 +1027,265 @@ resumeButton model =
 contact : Model -> Element Msg
 contact model =
     let
-        content =
+        shadowY =
+            toFloat <|
+                scaleFromWidth 0.006 model
+
+        borderShadow =
+            { offset = ( 0, shadowY )
+            , size = 0
+            , blur = shadowY
+            , color = blackTranslucent
+            }
+
+        contactForm =
             column
-                [ spacing <| padLg model
-                , paddingEach
-                    { edges
-                        | top = padXl model
-                        , bottom = scaleFromWidth 0.11 model
-                    }
+                [ width fill
+                , spacing <| padMd model
+                , padding <| padMd model
+                , Background.color lightBrownTranslucent
+                , Border.shadow borderShadow
                 ]
-                [ emailContactLink model
-                , linkedinContactLink model
-                , dribbbleContactLink model
-                , behanceContactLink model
-                , instagramContactLink model
-                , twitterContactLink model
+                [ row
+                    [ width fill
+                    , spacing <| padMd model
+                    ]
+                    [ firstNameInput model
+                    , lastNameInput model
+                    ]
+                , emailInput model
+                , messageInput model
+                , submitButton model
                 ]
     in
     column
-        [ centerX
-        , paddingEach { edges | top = padXxl model }
+        [ width <| px <| sectionWidth model
+        , centerX
+        , spacing <| padXl model
+        , paddingEach
+            { edges
+                | top = padXxl model
+                , bottom = scaleFromWidth 0.07 model
+            }
         ]
         [ sectionTitle "CONTACT" model
-        , content
+        , contactForm
         ]
 
 
-emailContactLink : Model -> Element Msg
-emailContactLink =
-    contactLink
-        Icons.email
-        "mailto:mariaye.vickery@gmail.com"
-        "mariaye.vickery@gmail.com"
-
-
-linkedinContactLink : Model -> Element Msg
-linkedinContactLink =
-    contactLink
-        Icons.linkedin
-        linkedinUrl
-        "linkedin.com/in/mariayevickery"
-
-
-instagramContactLink : Model -> Element Msg
-instagramContactLink =
-    contactLink
-        Icons.instagram
-        instagramUrl
-        "instagram.com/marsviux"
-
-
-twitterContactLink : Model -> Element Msg
-twitterContactLink =
-    contactLink
-        Icons.twitter
-        twitterUrl
-        "twitter.com/marsviux"
-
-
-behanceContactLink : Model -> Element Msg
-behanceContactLink =
-    contactLink
-        Icons.behance
-        behanceUrl
-        "behance.net/mariayevickery"
-
-
-dribbbleContactLink : Model -> Element Msg
-dribbbleContactLink =
-    contactLink
-        Icons.dribbble
-        dribbbleUrl
-        "dribbble.com/marsvic"
-
-
-contactLink : Icon Msg -> String -> String -> Model -> Element Msg
-contactLink icon url label model =
-    let
-        height =
-            String.fromInt <|
-                socialIconHeight model
-
-        socialIcon =
-            el [] <|
-                html <|
-                    icon
-                        [ Svg.Attributes.height height ]
-
-        linkText =
-            el
-                [ Font.size <| fontMd model
-                , Font.family <| sansSerif
-                ]
-            <|
-                text label
-
-        linkLabel =
-            row [ spacing <| padSm model ]
-                [ socialIcon, linkText ]
-    in
-    newTabLink []
-        { label = linkLabel
-        , url = url
+firstNameInput : Model -> Element Msg
+firstNameInput model =
+    Input.text
+        (formInputStyle model)
+        { onChange = UpdateForm FirstName
+        , text = model.contactForm.firstName
+        , placeholder = contactFormPlaceholder "First" model
+        , label = Input.labelHidden "Enter your first name"
         }
+
+
+lastNameInput : Model -> Element Msg
+lastNameInput model =
+    Input.text
+        (formInputStyle model)
+        { onChange = UpdateForm LastName
+        , text = model.contactForm.lastName
+        , placeholder = contactFormPlaceholder "Last" model
+        , label = Input.labelHidden "Enter your last name"
+        }
+
+
+emailInput : Model -> Element Msg
+emailInput model =
+    column [ width fill ]
+        [ Input.email
+            (formInputStyle model)
+            { onChange = UpdateForm EmailAddress
+            , text = model.contactForm.emailAddress
+            , placeholder = contactFormPlaceholder "Email" model
+            , label = Input.labelHidden "Enter your email"
+            }
+        , invalidEmailMessage model
+        ]
+
+
+invalidEmailMessage : Model -> Element Msg
+invalidEmailMessage model =
+    let
+        invalidSubmission =
+            model.invalidSubmission
+
+        invalidEmail =
+            model.emailFormState == InvalidEmail
+    in
+    if invalidSubmission && invalidEmail then
+        text "Please enter a valid email address."
+            |> el
+                [ paddingEach { edges | top = padSm model }
+                , Font.family sansSerifBold
+                , Font.size <| fontMd model
+                , Font.color red
+                ]
+
+    else
+        none
+
+
+messageInput : Model -> Element Msg
+messageInput model =
+    Input.multiline
+        (formInputStyle model ++ [ height <| px <| padXxl model ])
+        { onChange = UpdateForm EmailMessage
+        , text = model.contactForm.emailMessage
+        , placeholder = contactFormPlaceholder "Message" model
+        , label = Input.labelHidden "Enter your message"
+        , spellcheck = True
+        }
+
+
+submitButton : Model -> Element Msg
+submitButton model =
+    let
+        backgroundColor =
+            case model.submitButtonState of
+                Unsubmitted ->
+                    darkBrown
+
+                SubmitHovered ->
+                    darkBrown
+
+                SubmitPressed ->
+                    white
+
+                Submitted ->
+                    rgba255 0 0 0 0
+
+        fontColor =
+            case model.submitButtonState of
+                Unsubmitted ->
+                    white
+
+                SubmitHovered ->
+                    white
+
+                SubmitPressed ->
+                    darkBrown
+
+                Submitted ->
+                    darkBrown
+
+        shadowY =
+            toFloat <|
+                scaleFromWidth 0.006 model
+
+        borderShadow =
+            case model.submitButtonState of
+                Unsubmitted ->
+                    { offset = ( 0, shadowY )
+                    , size = 0
+                    , blur = shadowY
+                    , color = blackTranslucent
+                    }
+
+                SubmitHovered ->
+                    { offset = ( 0, shadowY * 1.3 )
+                    , size = 0
+                    , blur = shadowY * 1.3
+                    , color = blackTranslucent
+                    }
+
+                SubmitPressed ->
+                    { offset = ( 0, 0 )
+                    , size = 0
+                    , blur = 0
+                    , color = blackTranslucent
+                    }
+
+                Submitted ->
+                    { offset = ( 0, 0 )
+                    , size = 0
+                    , blur = 0
+                    , color = blackTranslucent
+                    }
+
+        labelText =
+            case model.submitButtonState of
+                Submitted ->
+                    "Thank you! I will get back to you soon."
+
+                _ ->
+                    "SUBMIT"
+
+        letterSpacing =
+            case model.submitButtonState of
+                SubmitHovered ->
+                    toFloat fontSize * 0.12
+
+                _ ->
+                    toFloat fontSize * 0.1
+
+        pads =
+            { top = padSm model
+            , bottom = padSm model
+            , left = padLg model
+            , right = padLg model
+            }
+
+        fontSize =
+            fontMd model
+
+        label =
+            labelText
+                |> text
+                |> el
+                    [ Font.family sansSerifBold
+                    , Font.size fontSize
+                    , Font.letterSpacing letterSpacing
+                    , Font.color fontColor
+                    ]
+    in
+    Input.button
+        [ centerX
+        , paddingEach pads
+        , Background.color backgroundColor
+        , Border.shadow borderShadow
+        , Events.onMouseDown <| UpdateSubmit PressSubmit
+        , Events.onMouseUp <| UpdateSubmit UnpressSubmit
+        , Events.onMouseEnter <| UpdateSubmit HoverSubmit
+        , Events.onMouseLeave <| UpdateSubmit LeaveSubmit
+        , focused []
+        ]
+        { onPress = Just NoOp
+        , label = label
+        }
+
+
+contactFormPlaceholder : String -> Model -> Maybe (Input.Placeholder Msg)
+contactFormPlaceholder placeholderText model =
+    placeholderText
+        |> text
+        |> el
+            [ Font.family sansSerif
+            , Font.size <| fontMd model
+            , Font.color darkGrey
+            ]
+        |> Input.placeholder
+            [ height <| px <| fontXl model
+            , alignLeft
+            ]
+        |> Just
+
+
+formInputStyle : Model -> List (Attribute Msg)
+formInputStyle model =
+    [ Font.alignLeft
+    , Font.family sansSerif
+    , Font.size <| fontMd model
+    , Font.color darkGrey
+    , Border.width 2
+    , Border.color white
+    , focused [ Border.color darkBrown ]
+    ]
 
 
 sectionTitle : String -> Model -> Element Msg
@@ -1027,6 +1380,16 @@ toSvgColor color =
         , to255 .blue
         , ")"
         ]
+
+
+green : Color
+green =
+    rgb255 0 230 0
+
+
+red : Color
+red =
+    rgb255 230 0 0
 
 
 white : Color
@@ -1174,6 +1537,16 @@ sansSerif =
     [ Font.external
         { name = "Roboto"
         , url = "https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
+        }
+    , Font.sansSerif
+    ]
+
+
+sansSerifBold : List Font.Font
+sansSerifBold =
+    [ Font.external
+        { name = "Roboto Bold"
+        , url = "https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap"
         }
     , Font.sansSerif
     ]
