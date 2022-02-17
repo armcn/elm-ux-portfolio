@@ -312,7 +312,7 @@ unpressSubmit model =
 postContact : ContactForm -> Cmd Msg
 postContact contactForm =
     Http.post
-        { url = "http://143.198.136.142/contact/contact"
+        { url = "https://contact.mariayevickery.com/contact/contact"
         , body = Http.jsonBody <| contactFormEncoder contactForm
         , expect = Http.expectWhatever Uploaded
         }
@@ -1270,7 +1270,7 @@ contactFormPlaceholder placeholderText model =
             , Font.color darkGrey
             ]
         |> Input.placeholder
-            [ height <| px <| fontXl model
+            [ height <| px <| fontXxl model
             , alignLeft
             ]
         |> Just
