@@ -1119,13 +1119,14 @@ invalidEmailMessage model =
             model.emailFormState == InvalidEmail
     in
     if invalidSubmission && invalidEmail then
-        text "Please enter a valid email address."
-            |> el
-                [ paddingEach { edges | top = padSm model }
-                , Font.family sansSerifBold
-                , Font.size <| fontMd model
-                , Font.color red
-                ]
+        el
+            [ paddingEach { edges | top = padSm model }
+            , Font.family sansSerifBold
+            , Font.size <| fontMd model
+            , Font.color red
+            ]
+        <|
+            text "Please enter a valid email address."
 
     else
         none
@@ -1235,14 +1236,14 @@ submitButton model =
             fontMd model
 
         label =
-            labelText
-                |> text
-                |> el
-                    [ Font.family sansSerifBold
-                    , Font.size fontSize
-                    , Font.letterSpacing letterSpacing
-                    , Font.color fontColor
-                    ]
+            el
+                [ Font.family sansSerifBold
+                , Font.size fontSize
+                , Font.letterSpacing letterSpacing
+                , Font.color fontColor
+                ]
+            <|
+                text labelText
     in
     Input.button
         [ centerX
@@ -1262,18 +1263,19 @@ submitButton model =
 
 contactFormPlaceholder : String -> Model -> Maybe (Input.Placeholder Msg)
 contactFormPlaceholder placeholderText model =
-    placeholderText
-        |> text
-        |> el
-            [ Font.family sansSerif
-            , Font.size <| fontMd model
-            , Font.color darkGrey
-            ]
-        |> Input.placeholder
+    Just <|
+        Input.placeholder
             [ height <| px <| fontXxl model
             , alignLeft
             ]
-        |> Just
+        <|
+            el
+                [ Font.family sansSerif
+                , Font.size <| fontMd model
+                , Font.color darkGrey
+                ]
+            <|
+                text placeholderText
 
 
 formInputStyle : Model -> List (Attribute Msg)
