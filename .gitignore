@@ -2,3 +2,4 @@ build
 elm-stuff
 .DS_Store
 elmapp.config.js
+node_modules

@@ -873,7 +873,7 @@ squareProject icon url heading description project dimension model =
                         , centerY
                         , Font.size <| fontSm model
                         , Font.color white
-                        , Font.bold
+                        , Font.semiBold
                         , Font.family sansSerif
                         ]
                       <|
@@ -1121,7 +1121,8 @@ invalidEmailMessage model =
     if invalidSubmission && invalidEmail then
         el
             [ paddingEach { edges | top = padSm model }
-            , Font.family sansSerifBold
+            , Font.family sansSerif
+            , Font.semiBold
             , Font.size <| fontMd model
             , Font.color red
             ]
@@ -1237,7 +1238,8 @@ submitButton model =
 
         label =
             el
-                [ Font.family sansSerifBold
+                [ Font.family sansSerif
+                , Font.bold
                 , Font.size fontSize
                 , Font.letterSpacing letterSpacing
                 , Font.color fontColor
@@ -1526,31 +1528,22 @@ scaleFont =
 
 serif : List Font.Font
 serif =
-    [ Font.external
-        { name = "Cormorant SC"
-        , url = "https://fonts.googleapis.com/css?family=Cormorant SC"
-        }
+    [ Font.typeface "Cormorant SC"
     , Font.serif
     ]
 
 
 sansSerif : List Font.Font
 sansSerif =
-    [ Font.external
-        { name = "Roboto"
-        , url = "https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
-        }
-    , Font.sansSerif
+    [ Font.typeface "Roboto"
+    , Font.serif
     ]
 
 
 sansSerifBold : List Font.Font
 sansSerifBold =
-    [ Font.external
-        { name = "Roboto Bold"
-        , url = "https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap"
-        }
-    , Font.sansSerif
+    [ Font.typeface "Roboto"
+    , Font.serif
     ]
 
 
