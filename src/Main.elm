@@ -883,6 +883,7 @@ squareProject icon url heading description project dimension model =
                         [ centerX
                         , centerY
                         , Font.size <| fontSm model
+                        , Font.center
                         , Font.color white
                         , Font.family sansSerif
                         ]
