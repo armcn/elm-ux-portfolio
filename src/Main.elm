@@ -14,6 +14,7 @@ import Http
 import Icons exposing (Icon)
 import Json.Encode as Encode
 import SmoothScroll
+import Svg
 import Svg.Attributes
 import Task
 import Validate
@@ -45,7 +46,7 @@ type Project
     | Honeysuckle
     | Luna
     | DailyUI
-    | ContraryGarden
+    | OneRepMax
     | Cleaning
 
 
@@ -766,8 +767,8 @@ projectsGrid device model =
         dailyUI =
             squareDailyUI dimension model
 
-        contraryGarden =
-            squareContraryGarden dimension model
+        oneRepMax =
+            squareOneRepMax dimension model
 
         cleaning =
             squareCleaning dimension model
@@ -776,13 +777,13 @@ projectsGrid device model =
         case device of
             Desktop ->
                 [ gridRow [ cleaning, roco, honeysuckle ]
-                , gridRow [ luna, dailyUI, contraryGarden ]
+                , gridRow [ luna, dailyUI, oneRepMax ]
                 ]
 
             Phone ->
                 [ gridRow [ cleaning, roco ]
                 , gridRow [ honeysuckle, luna ]
-                , gridRow [ dailyUI, contraryGarden ]
+                , gridRow [ dailyUI, oneRepMax ]
                 ]
 
 
@@ -826,14 +827,14 @@ squareDailyUI =
         DailyUI
 
 
-squareContraryGarden : Int -> Model -> Element Msg
-squareContraryGarden =
+squareOneRepMax : Int -> Model -> Element Msg
+squareOneRepMax =
     squareProject
-        Icons.contraryGarden
-        "https://society6.com/mariaye"
-        "Contrary Garden"
-        "Graphic design and artwork"
-        ContraryGarden
+        Icons.oneRepMax
+        "https://www.behance.net/gallery/140438467/One-Rep-Maximum-Calculator"
+        "1 Rep Maximum"
+        "Concept, Research, & UI/UX Design"
+        OneRepMax
 
 
 squareCleaning : Int -> Model -> Element Msg
@@ -896,6 +897,8 @@ squareProject icon url heading description project dimension model =
                 icon
                     [ Svg.Attributes.height <|
                         String.fromInt dimension
+                    , Svg.Attributes.fill <|
+                        toSvgColor darkGrey
                     ]
 
         shadowY =
