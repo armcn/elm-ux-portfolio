@@ -776,14 +776,14 @@ projectsGrid device model =
     grid <|
         case device of
             Desktop ->
-                [ gridRow [ cleaning, roco, honeysuckle ]
-                , gridRow [ luna, dailyUI, oneRepMax ]
+                [ gridRow [ oneRepMax, cleaning, roco ]
+                , gridRow [ honeysuckle, luna, dailyUI ]
                 ]
 
             Phone ->
-                [ gridRow [ cleaning, roco ]
-                , gridRow [ honeysuckle, luna ]
-                , gridRow [ dailyUI, oneRepMax ]
+                [ gridRow [ oneRepMax, cleaning ]
+                , gridRow [ roco, honeysuckle ]
+                , gridRow [ luna, dailyUI ]
                 ]
 
 
