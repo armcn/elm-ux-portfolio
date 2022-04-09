@@ -13,6 +13,7 @@ import Html exposing (Html)
 import Http
 import Icons exposing (Icon)
 import Json.Encode as Encode
+import List exposing (head)
 import SmoothScroll
 import Svg
 import Svg.Attributes
@@ -608,12 +609,12 @@ personJobTitle : Device -> Model -> Element Msg
 personJobTitle device model =
     let
         fontSize =
-            fontSm model
+            fontMd model
 
         letterSpacing =
             case device of
                 Desktop ->
-                    toFloat fontSize * 0.23
+                    toFloat fontSize * 0.16
 
                 Phone ->
                     0
@@ -627,7 +628,7 @@ personJobTitle device model =
         , Font.family sansSerif
         ]
     <|
-        text "JR. UI/UX DESIGNER"
+        text "UI/UX DESIGNER"
 
 
 socialLinks : Model -> Element Msg
@@ -948,32 +949,42 @@ about model =
 
 aboutDesktop : Model -> Element Msg
 aboutDesktop model =
+    let
+        headshotWidth : Int
+        headshotWidth =
+            scale 0.25 <| sectionWidth model
+
+        headshot : Element Msg
+        headshot =
+            el
+                [ width <| px headshotWidth
+                , alignLeft
+                ]
+            <|
+                image [ width fill ]
+                    { src = "%PUBLIC_URL%/mariaye-vickery-ui-ux-design.png"
+                    , description = "Photo of Mariaye Vickery"
+                    }
+    in
     row
         [ width <| px <| sectionWidth model
         , centerX
         , paddingEach { edges | top = padXl model }
         , spacing <| padLg model
         ]
-        [ el
-            [ width <| fillPortion 1
-            , alignTop
-            ]
-          <|
-            image [ width fill ]
-                { src = "%PUBLIC_URL%/headshot.png"
-                , description = "Photo of Mariaye Vickery"
-                }
-        , column
+        [ column
             [ width <| fillPortion 2
             , spacing <| padLg model
             ]
             [ paragraph
-                [ spacing <| fontMd model
+                [ spacing <| padSm model
                 , Font.alignLeft
                 , Font.size <| fontMd model
                 , Font.family sansSerif
                 ]
-                [ text aboutText ]
+              <|
+                headshot
+                    :: aboutText
             , resumeButton model
             ]
         ]
@@ -988,7 +999,7 @@ aboutPhone model =
         , spacing <| padLg model
         ]
         [ image [ width fill ]
-            { src = "%PUBLIC_URL%/headshot.png"
+            { src = "%PUBLIC_URL%/mariaye-vickery-ui-ux-design.png"
             , description = "Photo of Mariaye Vickery"
             }
         , paragraph
@@ -998,14 +1009,17 @@ aboutPhone model =
             , Font.size <| fontMd model
             , Font.family sansSerif
             ]
-            [ text aboutText ]
+            aboutText
         , resumeButton model
         ]
 
 
-aboutText : String
+aboutText : List (Element Msg)
 aboutText =
-    "I graduated from the University of Toronto in 2018 with a BA in Arts Management and Cultural Policy. Since then, I have worked in the arts, with a natural inclination toward design and new media. While working in art galleries, I found myself designing web presences and advising artists on their digital brands. This led me to pursue a career path in arts management and UX design."
+    [ text "As a "
+    , el [ Font.bold ] <| text "UI/UX Designer"
+    , text ", I make products and technology usable, enjoyable, and accessible for humans. I work with clients to develop well designed, user-friendly products. Prior to working in design, I studied Arts Management and Public Policy at the University of Toronto. After graduating in 2018, I worked for a variety of arts institutions coordinating exhibitions and events. During this time, I also designed websites and marketing content for clients. Upon learning more about UI/UX Design, I chose to pursue this career path. I am now happily working as a UI/UX Designer in Montreal, QB, Canada."
+    ]
 
 
 resumeButton : Model -> Element Msg
@@ -1539,13 +1553,6 @@ serif =
 
 sansSerif : List Font.Font
 sansSerif =
-    [ Font.typeface "Roboto"
-    , Font.serif
-    ]
-
-
-sansSerifBold : List Font.Font
-sansSerifBold =
     [ Font.typeface "Roboto"
     , Font.serif
     ]
