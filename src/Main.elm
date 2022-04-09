@@ -374,7 +374,7 @@ scrollToSection tab model =
         Contact ->
             scrollTo <|
                 toFloat <|
-                    scaleFromWidth 0.85 model
+                    scaleFromWidth 0.91 model
 
 
 scrollTo : Float -> Cmd Msg
