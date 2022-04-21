@@ -1018,7 +1018,7 @@ aboutText : List (Element Msg)
 aboutText =
     [ text "As a "
     , el [ Font.bold ] <| text "UI/UX Designer"
-    , text ", I make products and technology usable, enjoyable, and accessible for humans. I work with clients to develop well designed, user-friendly products. Prior to working in design, I studied Arts Management and Public Policy at the University of Toronto. After graduating in 2018, I worked for a variety of arts institutions coordinating exhibitions and events. During this time, I also designed websites and marketing content for clients. Upon learning more about UI/UX Design, I chose to pursue this career path. I am now happily working as a UI/UX Designer in Montreal, QB, Canada."
+    , text ", I make products and technology usable, enjoyable, and accessible for humans. I work with clients to develop well designed, user-friendly products. Prior to working in design, I studied Arts Management and Public Policy at the University of Toronto. After graduating in 2018, I worked for a variety of arts institutions coordinating exhibitions and events. During this time, I also designed websites and marketing content for clients. Upon learning more about UI/UX Design, I chose to pursue this career path."
     ]
 
 
