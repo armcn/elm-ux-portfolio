@@ -44,7 +44,7 @@ type Tab
 
 type Project
     = Roco
-    | Honeysuckle
+    | BritishColumbia
     | Luna
     | DailyUI
     | OneRepMax
@@ -759,8 +759,8 @@ projectsGrid device model =
         roco =
             squareRoco dimension model
 
-        honeysuckle =
-            squareHoneysuckle dimension model
+        britishColumbia =
+            squareBritishColumbia dimension model
 
         luna =
             squareLuna dimension model
@@ -777,13 +777,13 @@ projectsGrid device model =
     grid <|
         case device of
             Desktop ->
-                [ gridRow [ oneRepMax, cleaning, roco ]
-                , gridRow [ honeysuckle, luna, dailyUI ]
+                [ gridRow [ britishColumbia, oneRepMax, cleaning ]
+                , gridRow [ roco, luna, dailyUI ]
                 ]
 
             Phone ->
-                [ gridRow [ oneRepMax, cleaning ]
-                , gridRow [ roco, honeysuckle ]
+                [ gridRow [ britishColumbia, oneRepMax ]
+                , gridRow [ cleaning, roco  ]
                 , gridRow [ luna, dailyUI ]
                 ]
 
@@ -798,14 +798,14 @@ squareRoco =
         Roco
 
 
-squareHoneysuckle : Int -> Model -> Element Msg
-squareHoneysuckle =
+squareBritishColumbia : Int -> Model -> Element Msg
+squareBritishColumbia =
     squareProject
-        Icons.honeysuckle
-        "https://www.behance.net/gallery/131255777/Honeysuckle-Chopsaw"
-        "Case study: Wedding venue"
-        "Concept, branding, web and mobile UI/UX"
-        Honeysuckle
+        Icons.britishColumbia
+        ""
+        "Case study: BC Government"
+        "UI/UX design, service design"
+        BritishColumbia
 
 
 squareLuna : Int -> Model -> Element Msg
@@ -906,25 +906,37 @@ squareProject icon url heading description project dimension model =
         shadowY =
             toFloat <|
                 scaleFromWidth 0.006 model
+
+        style = 
+            [ width <| px dimension
+            , height <| px dimension
+            , Background.color lightBrownTranslucent
+            , Border.shadow
+                { offset = ( 0, shadowY )
+                , size = 0
+                , blur = shadowY
+                , color = blackTranslucent
+                }
+            , Events.onMouseEnter <| HoverProject project
+            , Events.onMouseLeave LeaveProject
+            , Events.onClick LeaveProject
+            , inFront overlay
+            ]
     in
-    newTabLink
-        [ width <| px dimension
-        , height <| px dimension
-        , Background.color lightBrownTranslucent
-        , Border.shadow
-            { offset = ( 0, shadowY )
-            , size = 0
-            , blur = shadowY
-            , color = blackTranslucent
-            }
-        , Events.onMouseEnter <| HoverProject project
-        , Events.onMouseLeave LeaveProject
-        , Events.onClick LeaveProject
-        , inFront overlay
-        ]
-        { url = url
-        , label = projectIcon
-        }
+    case project of
+        BritishColumbia -> 
+            downloadAs 
+                style
+                { label = projectIcon
+                , filename = "Mariaye Vickery - BC Government Case Study"
+                , url = "%PUBLIC_URL%/mariaye-vickery-public-site-directory.pdf"
+                }
+        _ ->
+            newTabLink
+                style
+                { url = url
+                , label = projectIcon
+                }
 
 
 about : Model -> Element Msg
