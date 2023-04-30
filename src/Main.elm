@@ -1050,7 +1050,7 @@ resumeButton model =
     downloadAs []
         { label = label
         , filename = "Mariaye Vickery's Resume"
-        , url = "%PUBLIC_URL%/resume.pdf"
+        , url = "%PUBLIC_URL%/mariaye-vickery-resume.pdf"
         }
 
 
