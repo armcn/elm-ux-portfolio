@@ -834,7 +834,7 @@ squareOneRepMax =
         Icons.oneRepMax
         "https://www.behance.net/gallery/140438467/One-Rep-Maximum-Calculator"
         "1 Rep Maximum"
-        "Concept, Research, & UI/UX Design"
+        "Concept, research, & UI/UX design"
         OneRepMax
 
 
@@ -844,7 +844,7 @@ squareCleaning =
         Icons.cleaning
         "https://www.behance.net/gallery/135853731/Shauna-Loves-Cleaning"
         "Shauna Loves Cleaning"
-        "UI/UX Design, Web Development and Branding"
+        "UI/UX design, web development and branding"
         Cleaning
 
 
