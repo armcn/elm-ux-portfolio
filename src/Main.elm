@@ -46,9 +46,9 @@ type Project
     = Roco
     | BritishColumbia
     | Luna
-    | DailyUI
+    | Roster
     | OneRepMax
-    | Cleaning
+    | Puff
 
 
 type alias ContactForm =
@@ -765,26 +765,26 @@ projectsGrid device model =
         luna =
             squareLuna dimension model
 
-        dailyUI =
-            squareDailyUI dimension model
+        roster =
+            squareRoster dimension model
 
         oneRepMax =
             squareOneRepMax dimension model
 
-        cleaning =
-            squareCleaning dimension model
+        puff =
+            squarePuff dimension model
     in
     grid <|
         case device of
             Desktop ->
-                [ gridRow [ britishColumbia, oneRepMax, cleaning ]
-                , gridRow [ roco, luna, dailyUI ]
+                [ gridRow [ puff, roster, britishColumbia ]
+                , gridRow [ luna, roco, oneRepMax ]
                 ]
 
             Phone ->
-                [ gridRow [ britishColumbia, oneRepMax ]
-                , gridRow [ cleaning, roco  ]
-                , gridRow [ luna, dailyUI ]
+                [ gridRow [ puff, roster ]
+                , gridRow [ britishColumbia, luna  ]
+                , gridRow [ roco, oneRepMax ]
                 ]
 
 
@@ -804,7 +804,7 @@ squareBritishColumbia =
         Icons.britishColumbia
         ""
         "Case study: BC Government"
-        "UI/UX design, service design"
+        "UI/UX design, UX research, service design"
         BritishColumbia
 
 
@@ -818,34 +818,33 @@ squareLuna =
         Luna
 
 
-squareDailyUI : Int -> Model -> Element Msg
-squareDailyUI =
-    squareProject
-        Icons.dailyUI
-        "https://www.behance.net/mariayevickery"
-        "Daily UI Exercises"
-        "UI concepts and practice"
-        DailyUI
-
-
 squareOneRepMax : Int -> Model -> Element Msg
 squareOneRepMax =
     squareProject
         Icons.oneRepMax
         "https://www.behance.net/gallery/140438467/One-Rep-Maximum-Calculator"
-        "1 Rep Maximum"
-        "Concept, research, & UI/UX design"
+        "Case study: 1 Rep Maximum"
+        "Concept, research, web and mobile UI/UX design"
         OneRepMax
 
 
-squareCleaning : Int -> Model -> Element Msg
-squareCleaning =
+squarePuff : Int -> Model -> Element Msg
+squarePuff =
     squareProject
-        Icons.cleaning
-        "https://www.behance.net/gallery/135853731/Shauna-Loves-Cleaning"
-        "Shauna Loves Cleaning"
-        "UI/UX design, web development and branding"
-        Cleaning
+        Icons.puff
+        "https://dribbble.com/shots/22106380-Puff-Breathwork-and-Meditation-App-Product-Design-Case-Study"
+        "Case study: Puff"
+        "Concept, branding, UX research, mobile UI/UX"
+        Puff
+
+squareRoster : Int -> Model -> Element Msg
+squareRoster =
+    squareProject
+        Icons.roster
+        "https://dribbble.com/shots/22128159-Roster-Redesigning-the-Online-Dating-Experience"
+        "Case study: Roster"
+        "Concept, UX research, mobile UI/UX"
+        Roster
 
 
 squareProject : Icon Msg -> String -> String -> String -> Project -> Int -> Model -> Element Msg
