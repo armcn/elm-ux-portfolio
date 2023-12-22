@@ -783,7 +783,7 @@ projectsGrid device model =
 
             Phone ->
                 [ gridRow [ puff, roster ]
-                , gridRow [ britishColumbia, luna  ]
+                , gridRow [ britishColumbia, luna ]
                 , gridRow [ roco, oneRepMax ]
                 ]
 
@@ -836,6 +836,7 @@ squarePuff =
         "Case study: Puff"
         "Concept, branding, UX research, mobile UI/UX"
         Puff
+
 
 squareRoster : Int -> Model -> Element Msg
 squareRoster =
@@ -906,7 +907,7 @@ squareProject icon url heading description project dimension model =
             toFloat <|
                 scaleFromWidth 0.006 model
 
-        style = 
+        style =
             [ width <| px dimension
             , height <| px dimension
             , Background.color lightBrownTranslucent
@@ -923,13 +924,14 @@ squareProject icon url heading description project dimension model =
             ]
     in
     case project of
-        BritishColumbia -> 
-            downloadAs 
+        BritishColumbia ->
+            downloadAs
                 style
                 { label = projectIcon
                 , filename = "Mariaye Vickery - BC Government Case Study"
                 , url = "%PUBLIC_URL%/mariaye-vickery-public-site-directory.pdf"
                 }
+
         _ ->
             newTabLink
                 style
@@ -1576,7 +1578,7 @@ linkedinUrl =
 
 dribbbleUrl : String
 dribbbleUrl =
-    "https://dribbble.com/marsvic"
+    "https://dribbble.com/marsviux"
 
 
 behanceUrl : String
