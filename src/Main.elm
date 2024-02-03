@@ -1359,7 +1359,7 @@ oneThirdWidth =
 
 scaleFromWidth : Float -> Model -> Int
 scaleFromWidth factor model =
-    scale factor model.screenSize.width
+    scale factor (min model.screenSize.width 1800)
 
 
 scale : Float -> Int -> Int
