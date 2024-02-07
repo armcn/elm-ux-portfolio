@@ -435,6 +435,7 @@ viewPhone model =
     layout [] <|
         column [ width fill ]
             [ topbar model
+            , socialLinks Phone model
             , mainArea Phone model
             ]
 
@@ -562,7 +563,7 @@ sidebar model =
                 , personLogo model
                 , personJobTitle Desktop model
                 ]
-            , socialLinks model
+            , socialLinks Desktop model
             ]
 
 
@@ -631,12 +632,30 @@ personJobTitle device model =
         text "UI/UX DESIGNER"
 
 
-socialLinks : Model -> Element Msg
-socialLinks model =
+socialLinks : Device -> Model -> Element Msg
+socialLinks device model =
+    let
+        iconPadding =
+            case device of
+                Phone ->
+                    padSm model
+
+                Desktop ->
+                    0
+
+        iconSpacing =
+            case device of
+                Phone ->
+                    padMd model
+
+                Desktop ->
+                    padSm model
+    in
     row
         [ centerX
         , centerY
-        , spacing <| padSm model
+        , spacing iconSpacing
+        , padding iconPadding
         ]
         [ linkedinIconLink model
         , dribbbleIconLink model
