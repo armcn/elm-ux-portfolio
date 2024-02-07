@@ -630,7 +630,7 @@ personJobTitle device model =
         , Font.family sansSerif
         ]
     <|
-        text "UI/UX DESIGNER"
+        text "UX/UI DESIGNER"
 
 
 socialLinks : Device -> Model -> Element Msg
@@ -814,7 +814,7 @@ squareRoco =
         Icons.roco
         "https://www.behance.net/gallery/131255429/Roco"
         "Case study: Roco"
-        "Concept, branding, mobile UI/UX"
+        "Concept, branding, mobile UX/UI"
         Roco
 
 
@@ -824,7 +824,7 @@ squareBritishColumbia =
         Icons.britishColumbia
         ""
         "Case study: BC Government"
-        "UI/UX design, UX research, service design"
+        "UX/UI design, UX research, service design"
         BritishColumbia
 
 
@@ -834,7 +834,7 @@ squareLuna =
         Icons.luna
         "https://www.behance.net/gallery/131256029/Luna"
         "Case study: Women's health"
-        "Concept, branding, web and mobile UI/UX"
+        "Concept, branding, web and mobile UX/UI"
         Luna
 
 
@@ -844,7 +844,7 @@ squareOneRepMax =
         Icons.oneRepMax
         "https://www.behance.net/gallery/140438467/One-Rep-Maximum-Calculator"
         "Case study: 1 Rep Maximum"
-        "Concept, research, web and mobile UI/UX design"
+        "Concept, research, web and mobile UX/UI design"
         OneRepMax
 
 
@@ -854,7 +854,7 @@ squarePuff =
         Icons.puff
         "https://dribbble.com/shots/22106380-Puff-Breathwork-and-Meditation-App-Product-Design-Case-Study"
         "Case study: Puff"
-        "Concept, branding, UX research, mobile UI/UX"
+        "Concept, branding, UX research, mobile UX/UI"
         Puff
 
 
@@ -864,7 +864,7 @@ squareRoster =
         Icons.roster
         "https://dribbble.com/shots/22128159-Roster-Redesigning-the-Online-Dating-Experience"
         "Case study: Roster"
-        "Concept, UX research, mobile UI/UX"
+        "Concept, UX research, mobile UX/UI"
         Roster
 
 
@@ -1050,8 +1050,8 @@ aboutPhone model =
 aboutText : List (Element Msg)
 aboutText =
     [ text "As a "
-    , el [ Font.bold ] <| text "UI/UX Designer"
-    , text ", I make products and technology usable, enjoyable, and accessible for humans. I work with clients to develop well designed, user-friendly products. Prior to working in design, I studied Arts Management and Public Policy at the University of Toronto. After graduating in 2018, I worked for a variety of arts institutions coordinating exhibitions and events. During this time, I also designed websites and marketing content for clients. Upon learning more about UI/UX Design, I chose to pursue this career path."
+    , el [ Font.bold ] <| text "UX/UI Designer"
+    , text ", I make products and technology usable, enjoyable, and accessible for humans. I work with clients to develop well designed, user-friendly products. Prior to working in design, I studied Arts Management and Public Policy at the University of Toronto. After graduating in 2018, I worked for a variety of arts institutions coordinating exhibitions and events. During this time, I also designed websites and marketing content for clients. Upon learning more about UX/UI Design, I chose to pursue this career path."
     ]
 
 
