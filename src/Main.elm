@@ -437,6 +437,7 @@ viewPhone model =
             [ topbar model
             , socialLinks Phone model
             , mainArea Phone model
+            , socialLinks Phone model
             ]
 
 
