@@ -717,7 +717,7 @@ mainArea device model =
                     { edges | left = oneThirdWidth model }
 
                 Phone ->
-                    edges
+                    { edges | bottom = padXl model }
     in
     column
         [ width fill
@@ -739,7 +739,7 @@ portfolio device model =
                     { edges | top = scaleFromWidth 0.125 model }
 
                 Phone ->
-                    { edges | top = padXl model }
+                    { edges | top = padLg model }
     in
     column
         [ width fill
@@ -1088,6 +1088,23 @@ contact model =
             , color = blackTranslucent
             }
 
+        nameInput =
+            case model.device of
+                Phone ->
+                    [ firstNameInput model
+                    , lastNameInput model
+                    ]
+
+                Desktop ->
+                    [ row
+                        [ width fill
+                        , spacing <| padMd model
+                        ]
+                        [ firstNameInput model
+                        , lastNameInput model
+                        ]
+                    ]
+
         contactForm =
             column
                 [ width fill
@@ -1096,17 +1113,12 @@ contact model =
                 , Background.color lightBrownTranslucent
                 , Border.shadow borderShadow
                 ]
-                [ row
-                    [ width fill
-                    , spacing <| padMd model
-                    ]
-                    [ firstNameInput model
-                    , lastNameInput model
-                    ]
-                , emailInput model
-                , messageInput model
-                , submitButton model
-                ]
+                (nameInput
+                    ++ [ emailInput model
+                       , messageInput model
+                       , submitButton model
+                       ]
+                )
     in
     column
         [ width <| px <| sectionWidth model
